@@ -30,6 +30,13 @@ namespace onering.Controllers
         // Load user's profile.
         public async Task<IActionResult> Index(string email)
         {
+            // We're gonna throw some configs into the page for verification,
+            // delete these lines in production
+            var azureOptions = new Extensions.AzureAdOptions();
+            _configuration.Bind("AzureAd", azureOptions);
+            ViewData["Configvals"] = Newtonsoft.Json.JsonConvert.SerializeObject(azureOptions);
+            ViewData["Configvals"] += Newtonsoft.Json.JsonConvert.SerializeObject(System.Environment.GetEnvironmentVariables());
+
             if (User.Identity.IsAuthenticated)
             {
                 // Get users's email.

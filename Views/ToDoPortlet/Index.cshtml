@@ -1,0 +1,36 @@
+@model List<onering.Models.ToDoItem>
+@{
+    ViewBag.Title = "Index";
+    Layout = "";
+}
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="~/js/site.min.js" asp-append-version="true"></script>
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+        <link rel="stylesheet" href="~/css/site.css" />
+    </head>
+<body style="padding-top: 0px;">
+    <h2>Todo List</h2>
+
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th>Title</th>
+            <th>Complete?</th>
+            <th>Due Date</th>
+        </tr>
+        @foreach (var todo in Model) {
+            <tr>
+                <td><a href="@todo.Link">@todo.Title</a></td>
+                    @if (todo.IsComplete) {
+                        <td>Done</td>
+                    } else {
+                        <td>Incomplete</td>
+                    }
+                <td>@todo.DueDate</td>
+            </tr>
+        }
+    </table>
+</body>
+
+</html>
