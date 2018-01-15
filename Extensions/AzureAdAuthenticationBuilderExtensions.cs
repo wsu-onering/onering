@@ -94,6 +94,7 @@ namespace onering.Extensions
                             new ClientCredential(_azureOptions.ClientSecret),
                             new SessionTokenCache(identifier, memoryCache).GetCacheInstance(), 
                             null);
+                        // Result will contain the access token
                         var result = await cca.AcquireTokenByAuthorizationCodeAsync(code, graphScopes);
 
                         // Check whether the login is from the MSA tenant. 

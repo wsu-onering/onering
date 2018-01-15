@@ -49,6 +49,19 @@ namespace onering.Helpers
                 }
             }
         }
+        public static async Task<User> GetUser(GraphServiceClient graphClient, string email, HttpContext httpContext)
+        {
+            try
+            {
+                // Load user profile.
+                var user = await graphClient.Users[email].Request().GetAsync();
+                return user;
+            }
+            catch
+            {
+                throw;
+            }
+        }
 
         // Load user's profile picture in base64 string.
         public static async Task<string> GetPictureBase64(GraphServiceClient graphClient, string email, HttpContext httpContext)

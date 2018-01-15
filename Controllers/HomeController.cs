@@ -26,7 +26,7 @@ namespace onering.Controllers
             _env = hostingEnvironment;
             _graphSdkHelper = graphSdkHelper;
         }
-        [AllowAnonymous]
+        [Authorize]
         // Load user's profile.
         public async Task<IActionResult> Index(string email)
         {

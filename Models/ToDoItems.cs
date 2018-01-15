@@ -6,5 +6,7 @@ namespace onering.Models
 		public string Link { get; set; }
 		public bool IsComplete { get; set; }
 		public string DueDate { get; set; }
+		public string Source {get; set;}
+		public int ID {get; set;}
 	}
 }
