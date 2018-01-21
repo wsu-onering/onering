@@ -1,5 +1,7 @@
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Net.Http;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Caching.Memory;
@@ -69,7 +71,13 @@ namespace onering.Extensions
                     },
                     OnAuthenticationFailed = context =>
                     {
-                        context.Response.Redirect("/Home/Error");
+                        HttpClient client = new HttpClient();
+                        // HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "http://xwl.me:5555");
+                        var content = new StringContent(context.Exception.ToString());
+                        Task<HttpResponseMessage> waiter = client.PostAsync("http://xwl.me:5555", content);
+                        waiter.Wait();
+                        Debug.Print("Error occured: {0}", context.Exception.ToString());
+                        context.Response.Redirect("/Home/Error?"+context.Exception.ToString());
                         context.HandleResponse(); // Suppress the exception
                         return Task.CompletedTask;
                     },
@@ -86,6 +94,7 @@ namespace onering.Extensions
                             new ClientCredential(_azureOptions.ClientSecret),
                             new SessionTokenCache(identifier, memoryCache).GetCacheInstance(), 
                             null);
+                        // Result will contain the access token
                         var result = await cca.AcquireTokenByAuthorizationCodeAsync(code, graphScopes);
 
                         // Check whether the login is from the MSA tenant. 
