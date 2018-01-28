@@ -15,6 +15,8 @@ using Microsoft.Extensions.Logging;
 
 using onering.Extensions;
 using onering.Helpers;
+using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.AspNetCore.Http;
 
 namespace onering
 {
