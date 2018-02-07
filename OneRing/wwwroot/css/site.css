@@ -33,3 +33,12 @@
         display: none;
     }
 }
+
+.navbar-brand {
+    font-size: 30px;
+}
+
+.navbar-inverse .navbar-brand {
+    color: #dddddd;
+}
+

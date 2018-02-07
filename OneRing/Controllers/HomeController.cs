@@ -20,12 +20,15 @@ namespace onering.Controllers
         private readonly IConfiguration _configuration;
         private readonly IHostingEnvironment _env;
         private readonly IGraphSdkHelper _graphSdkHelper;
+
+
         public HomeController(IConfiguration configuration, IHostingEnvironment hostingEnvironment, IGraphSdkHelper graphSdkHelper)
         {
             _configuration = configuration;
             _env = hostingEnvironment;
             _graphSdkHelper = graphSdkHelper;
         }
+        
         [Authorize]
         // Load user's profile.
         public async Task<IActionResult> Index(string email)
