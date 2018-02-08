@@ -1,7 +1,7 @@
 @model List<onering.Models.ToDoItemView>
 @{
-ViewBag.Title = "Index";
-Layout = "";
+    ViewBag.Title = "Index";
+    Layout = "";
 }
 <!DOCTYPE html>
 <html>
@@ -11,87 +11,93 @@ Layout = "";
     <link rel="stylesheet" href="~/css/site.css" />
     <script src="//ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 </head>
-<body style="padding-top: 0px;">
-<h2>Todo List</h2>
 
-<table class="table table-bordered table-striped">
-    <tr>
-        <th>Title</th>
-        <th>Due Date</th>
-    </tr>
-    @foreach (var todo in Model) {
-        <tr userid="@todo.UserID" sourceid="@todo.SourceID" itemid="@todo.ID">
-            <td><a href="@todo.Link">@todo.Title</a></td>
-            <td>@todo.DueDate</td>
-            <td>
-                <button>Mark as Done</button>
-            </td>
+
+<body style="padding-top: 0px;">
+    <h2>Todo List</h2>
+
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th>Title</th>
+            <th>Due Date</th>
         </tr>
-    }
-</table>
+        @foreach (var todo in Model) {
+            <tr userid="@todo.UserID" sourceid="@todo.SourceID" itemid="@todo.ID">
+                <td><a href="@todo.Link">@todo.Title</a></td>
+                <td>@todo.DueDate</td>
+                <td>
+                    <button>Mark as Done</button>
+                </td>
+            </tr>
+        }
+    </table>
 </body>
+
+
 <script>
-function createClick(row) {
-    return function(){
-        var sourceID = row.attributes.sourceid.value;
-        var userID = row.attributes.userid.value;
-        var itemID = row.attributes.itemid.value;
-        console.log("the button for the row was clicked for row", row);
-        var data = JSON.stringify({
-                "sourceID": sourceID,
-                "userID": userID,
-                "itemID": itemID
+    function createClick(row) {
+        return function(){
+            var sourceID = row.attributes.sourceid.value;
+            var userID = row.attributes.userid.value;
+            var itemID = row.attributes.itemid.value;
+            console.log("the button for the row was clicked for row", row);
+            var data = JSON.stringify({
+                    "sourceID": sourceID,
+                    "userID": userID,
+                    "itemID": itemID
+                });
+            console.log("data:", data);
+            $(row).hide();
+            $.ajax({
+                "method": "POST",
+                "data": data,
+                'contentType': 'application/json',
+                'url': '/TodoPortlet/MarkDone'
+            }).done(()=>{
+                console.log("We sent the thing off and we hope it went well!");
+                //location.reload();
+            }).fail((stuff)=>{
+                console.log("Apparently everything failed : (");
+                console.log(stuff);
+                $(row).show();
             });
-        console.log("data:", data);
-        $(row).hide();
-        $.ajax({
-            "method": "POST",
-            "data": data,
-            'contentType': 'application/json',
-            'url': '/TodoPortlet/MarkDone'
-        }).done(()=>{
-            console.log("We sent the thing off and we hope it went well!");
-            //location.reload();
-        }).fail((stuff)=>{
-            console.log("Apparently everything failed : (");
-            console.log(stuff);
-            $(row).show();
-        });
-    }
-}
-function main() {
-    console.log($('tr'));
-    for (row of $('tr')) {
-        var button = $(row).find('button');
-        if (row.attributes.length > 0) {
-            button.click(createClick(row));
         }
     }
-}
-//$(()=>{console.log("did this work eh?");});
-$(main);
+    function main() {
+        console.log($('tr'));
+        for (row of $('tr')) {
+            var button = $(row).find('button');
+            if (row.attributes.length > 0) {
+                button.click(createClick(row));
+            }
+        }
+    }
+    //$(()=>{console.log("did this work eh?");});
+    $(main);
 </script>
+
+
 <style type="text/css">
-button {
-    font-size: 11px;
-}
-body {
-    font-size: 12px;
-    padding: 0;
-}
-.table > tbody > tr > td {
-    padding: 2px;
-}
-.table > tbody > tr > th {
-    padding: 2px;
-}
-.table {
-    margin-bottom: 0;
-}
-h2 {
-    margin-top: 5px;
-    font-size: 25px;
-}
-    </style>
+    button {
+        font-size: 11px;
+    }
+    body {
+        font-size: 12px;
+        padding: 0;
+    }
+    .table > tbody > tr > td {
+        padding: 2px;
+    }
+    .table > tbody > tr > th {
+        padding: 2px;
+    }
+    .table {
+        margin-bottom: 0;
+    }
+    h2 {
+        margin-top: 5px;
+        font-size: 25px;
+    }
+</style>
 
 </html>
