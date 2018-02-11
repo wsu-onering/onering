@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Authorization;
@@ -12,6 +10,7 @@ using Microsoft.Graph;
 
 using onering.Helpers;
 using onering.Models;
+using Newtonsoft.Json;
 
 namespace onering.Controllers
 {
@@ -37,8 +36,8 @@ namespace onering.Controllers
             // delete these lines in production
             var azureOptions = new Extensions.AzureAdOptions();
             _configuration.Bind("AzureAd", azureOptions);
-            ViewData["Configvals"] = Newtonsoft.Json.JsonConvert.SerializeObject(azureOptions);
-            ViewData["Configvals"] += Newtonsoft.Json.JsonConvert.SerializeObject(System.Environment.GetEnvironmentVariables());
+            ViewData["Configvals"] = JsonConvert.SerializeObject(azureOptions);
+            ViewData["Configvals"] += JsonConvert.SerializeObject(Environment.GetEnvironmentVariables());
 
             if (User.Identity.IsAuthenticated)
             {
