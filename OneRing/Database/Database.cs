@@ -1,15 +1,202 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Data.SqlClient;
 
+using Microsoft.Extensions.Configuration;
+
+using onering.Models;
+
 namespace onering.Database{
     public class Database {
+
+        /// <summary>
+        /// _connectionString is the connection string to the database. This is used implicitly by
+        /// all queries to the database, except for the EnsureTablesCreated method, which requires
+        /// the connectionstring be passed in when calling it. The goal of this is two fold:
+        ///     1. Prevent over use of the EnsureTableCreated method
+        ///     2. Keep all database connection management internal to this class
+        /// </summary>
+        private string _connectionString;
+        private SqlConnection _conn;
+        private IConfiguration _configuration;
+        private void Open() {
+            if (_conn.State != System.Data.ConnectionState.Open) {
+                _conn.Open();
+            }
+        }
+        private void Close() {
+            if (_conn.State != System.Data.ConnectionState.Closed) {
+                _conn.Close();
+            }
+        }
+        public Database(IConfiguration configuration){
+            _configuration = configuration;
+            _connectionString = _configuration.GetSection("Databases")["OneRing"];
+            _conn = new SqlConnection(_connectionString);
+        }
+
+        /// <summary>
+        /// CreatePortlet creates a new portlet in the database with the same data as the provided portlet.
+        /// </summary>
+        /// <param name="portlet">The portlet inserted into the database will have all the values of the input object, except for the ID field. The ID field on the input portlet is ignored.</param>
+        public void CreatePortlet(Portlet portlet) {
+            string query = @"INSERT INTO Portlet (
+                PortletName,
+                PortletDescription,
+                PortletPath,
+                PortletIcon
+            ) OUTPUT INSERTED.PortletID VALUES (
+                @name,
+                @description,
+                @path,
+                @icon
+            )";
+            this.Open();
+            using (SqlCommand cmd = new SqlCommand(query, this._conn)) {
+                cmd.Parameters.AddWithValue("@name", portlet.Name);
+                cmd.Parameters.AddWithValue("@description", portlet.Description);
+                cmd.Parameters.AddWithValue("@path", portlet.Path);
+                cmd.Parameters.AddWithValue("@icon", portlet.Icon);
+                int portletId = (int)cmd.ExecuteScalar();
+                Debug.WriteLine("We should create a config field here: ");
+                foreach (ConfigField field in portlet.ConfigFields) {
+                    Debug.WriteLine("Creating a ConfigField");
+                    CreateConfigField(field, portletId);
+                }
+            }
+            this.Close();
+        }
+
+        /// <summary>
+        /// ListPortlet returns a list of all portlets.
+        /// </summary>
+        /// <returns>A list of all portlets. This list is not garuanteed to be sorted in any way.</returns>
+        public List<Portlet> ListPortlets() {
+            List<Portlet> portlets = new List<Portlet>();
+
+            string query = @"SELECT * FROM Portlet";
+            this.Open();
+            using (SqlCommand cmd = new SqlCommand(query, this._conn)) {
+                using (SqlDataReader r = cmd.ExecuteReader()) {
+                    while (r.Read()) {
+                        Portlet p = new Portlet();
+                        p.ID = r.GetInt32(0);
+                        p.Name = r.GetString(1);
+                        p.Description = r.GetString(2);
+                        p.Path = r.GetString(3);
+                        p.Icon = r.GetString(4);
+                        p.ConfigFields = ListConfigFields(p.ID);
+                        portlets.Add(p);
+                    }
+                }
+            }
+            return portlets;
+        }
+
+        /// <summary>
+        /// Creates a ConfigField associated with the given portlet.
+        /// </summary>
+        /// <param name="cf">The contents of the configfield. The ID field and the PortletID field of this object are ignored.</param>
+        /// <param name="portletId">The ID of the portlet to associate this ConfigField with.</param>
+        public void CreateConfigField(ConfigField cf, int portletId) {
+            string query = @"INSERT INTO ConfigField (
+                ConfigFieldName,
+                ConfigFieldDescription,
+                PortletID
+            ) output INSERTED.ConfigFieldID VALUES (
+                @name,
+                @description,
+                @portletid
+            )";
+            // Because this query may be run while another query is being run using the class-wide
+            // _conn, we create out own connection here.
+            using (SqlConnection conn = new SqlConnection(this._connectionString)) {
+                using (SqlCommand cmd = new SqlCommand(query, conn)) {
+                    cmd.Parameters.AddWithValue("@name", cf.Name);
+                    cmd.Parameters.AddWithValue("@description", cf.Description);
+                    cmd.Parameters.AddWithValue("@portletid", portletId);
+                    conn.Open();
+                    int configFieldId = (int) cmd.ExecuteScalar();
+                    if (cf.ConfigFieldOptions != null) {
+                        foreach (ConfigFieldOption option in cf.ConfigFieldOptions) {
+                            CreateConfigFieldOption(option, configFieldId);
+                        }
+                    }
+                }
+            }
+        }
+        // Retrieve all the configfield(s) assocaited with a given portlet.
+        public List<ConfigField> ListConfigFields(int portletId) {
+            List<ConfigField> fields = new List<ConfigField>();
+            string query = @"SELECT * FROM ConfigField WHERE PortletID=@portletid";
+            using (SqlConnection conn = new SqlConnection(this._connectionString)) {
+                using (SqlCommand cmd = new SqlCommand(query, conn)) {
+                    cmd.Parameters.AddWithValue("@portletid", portletId);
+                    conn.Open();
+                    using (SqlDataReader r = cmd.ExecuteReader()) {
+                        while (r.Read()) {
+                            ConfigField cf = new ConfigField();
+                            cf.ID = r.GetInt32(0);
+                            cf.Name = r.GetString(1);
+                            cf.Description = r.GetString(2);
+                            cf.ConfigFieldOptions = ListConfigFieldOptions(cf.ID);
+                            fields.Add(cf);
+                        }
+                    }
+                }
+            }
+            return fields;
+        }
+
+        /// <summary>
+        /// Creates a ConfigFieldOption with the provided value.
+        /// </summary>
+        /// <param name="option">The ConfigFieldOption object to create in the database. The ConfigFieldID field is ignored. Pass that as the other argument to this method.</param>
+        /// <param name="configFieldId">The ID of the ConfigField to associate this ConfigFieldOption with.</param>
+        public void CreateConfigFieldOption(ConfigFieldOption option, int configFieldId) {
+            string query = @"INSERT INTO ConfigFieldOption (
+                ConfigFieldOptionValue,
+                ConfigFieldID
+            ) VALUES (
+                @optionvalue,
+                @configfieldid
+            )";
+            using (SqlConnection conn = new SqlConnection(this._connectionString)) {
+                using (SqlCommand cmd = new SqlCommand(query, conn)) {
+                    cmd.Parameters.AddWithValue("optionvalue", option.Value);
+                    cmd.Parameters.AddWithValue("configfieldid", configFieldId);
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public List<ConfigFieldOption> ListConfigFieldOptions(int configFieldId) {
+            List<ConfigFieldOption> options = new List<ConfigFieldOption>();
+            string query = @"SELECT * FROM ConfigFieldOption WHERE ConfigFieldID=@configfieldid";
+            using (SqlConnection conn = new SqlConnection(this._connectionString)) {
+                using (SqlCommand cmd = new SqlCommand(query, conn)) {
+                    cmd.Parameters.AddWithValue("@configfieldid", configFieldId);
+                    conn.Open();
+                    using (SqlDataReader r = cmd.ExecuteReader()) {
+                        while (r.Read()) {
+                            ConfigFieldOption co = new ConfigFieldOption();
+                            co.ID = r.GetInt32(0);
+                            co.Value = r.GetString(1);
+                            options.Add(co);
+                        }
+                    }
+                }
+            }
+            return options;
+        }
+
         /// <summary>
         /// EnsureTablesCreated statically attempts to ensure that all the necessary database tables exist within the Database. If the tables do not exist, then the necessary SQL commands are run to create those tables. If the tables do exist, then EnsureTablesCreated does nothing.
         /// </summary>
         /// <param name="connectionString">The full connection string used to connect to the database. No attempts are made to derive the connection string from implicit sources (e.g. environment variables), meaning this parameter is required. </param>
         public static void EnsureTablesCreated(string connectionString) {
-            // SqlConnection conn = new SqlConnection(connectionString);
             using (SqlConnection conn = new SqlConnection(connectionString)) {
                 conn.Open();
 
@@ -20,8 +207,8 @@ namespace onering.Database{
                     CREATE TABLE Portlet(
                         PortletID INTEGER NOT NULL IDENTITY (1,1),
                         PortletName NVARCHAR(3000) NOT NULL,
-                        PortletPath NVARCHAR(3000) NOT NULL,
                         PortletDescription NVARCHAR(3000) NOT NULL,
+                        PortletPath NVARCHAR(3000) NOT NULL,
                         PortletIcon NVARCHAR(3000) NOT NULL,
                         CONSTRAINT PortletPK PRIMARY KEY (PortletID)
                     );
