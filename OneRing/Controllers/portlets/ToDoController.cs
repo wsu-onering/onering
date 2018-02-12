@@ -24,18 +24,52 @@ namespace onering.Controllers
     public class ToDoPortletController : Controller
     {
         private readonly Dictionary<string, string> datasources = new Dictionary<string, string>{
-                // { "1", "http://todotestsite.azurewebsites.net/api/values/" },
-                // { "2", "http://todotestsite2.azurewebsites.net/api/values/" }
-                { "1", "http://localhost:5555/" },
+                { "1", "http://todotestsite.azurewebsites.net/api/values/" },
+                { "2", "http://todotestsite2.azurewebsites.net/api/values/" }
+                // { "1", "http://localhost:5555/" },
             };
         private readonly IConfiguration _configuration;
         private readonly IHostingEnvironment _env;
         private readonly IGraphAuthProvider _graphAuthProvider;
-        public ToDoPortletController(IConfiguration configuration, IHostingEnvironment hostingEnvironment, IGraphAuthProvider graphAuthProvider)
+        private Database.IOneRingDB _db;
+        private string PortletName = "ToDo";
+        private string PortletDescription = "View all the items in your To-Do lists.";
+        private string PortletIconPath = "http://lelandbatey.com/favicon.ico";
+        public ToDoPortletController(IConfiguration configuration, IHostingEnvironment hostingEnvironment, IGraphAuthProvider graphAuthProvider, Database.IOneRingDB db)
         {
             _configuration = configuration;
             _env = hostingEnvironment;
             _graphAuthProvider = graphAuthProvider;
+            _db = db;
+
+            // Check if this portlet already exists in the Database, and if it isn't there, put it
+            // into the database.
+            bool weExist = false;
+            foreach (Portlet portlet in _db.ListPortlets(this.PortletName)) {
+                if (portlet.Name == this.PortletName) {
+                    weExist = true;
+                    Debug.Print("We found a portlet with the same name as us: {0}, us {1}", portlet.Name, this.PortletName);
+                }
+            }
+            if (!weExist) {
+                Portlet p = new Portlet {
+                    Name = this.PortletName,
+                    Description = this.PortletDescription,
+                    Path = this.GetType().Name.Replace("Controller", ""),
+                    Icon = this.PortletIconPath,
+                    ConfigFields = new List<ConfigField> {
+                        new ConfigField {
+                            Name = "Data source:",
+                            Description = "The data source from which to retrieve your ToDo items.",
+                            ConfigFieldOptions = new List<ConfigFieldOption> {
+                                new ConfigFieldOption { Value = "http://todotestsite.azurewebsites.net/api/values/"},
+                                new ConfigFieldOption { Value = "http://todotestsite2.azurewebsites.net/api/values/"},
+                            }
+                        }
+                    }
+                };
+                this._db.CreatePortlet(p);
+            }
         }
         [Authorize]
         // GET: TodoPortlet

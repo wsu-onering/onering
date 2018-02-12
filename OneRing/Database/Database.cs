@@ -8,7 +8,7 @@ using Microsoft.Extensions.Configuration;
 using onering.Models;
 
 namespace onering.Database{
-    public class Database {
+    public class Database : IOneRingDB {
 
         /// <summary>
         /// _connectionString is the connection string to the database. This is used implicitly by
@@ -59,10 +59,10 @@ namespace onering.Database{
                 cmd.Parameters.AddWithValue("@path", portlet.Path);
                 cmd.Parameters.AddWithValue("@icon", portlet.Icon);
                 int portletId = (int)cmd.ExecuteScalar();
-                Debug.WriteLine("We should create a config field here: ");
-                foreach (ConfigField field in portlet.ConfigFields) {
-                    Debug.WriteLine("Creating a ConfigField");
-                    CreateConfigField(field, portletId);
+                if (portlet.ConfigFields != null) {
+                    foreach (ConfigField field in portlet.ConfigFields) {
+                        CreateConfigField(field, portletId);
+                    }
                 }
             }
             this.Close();
@@ -91,6 +91,37 @@ namespace onering.Database{
                     }
                 }
             }
+            return portlets;
+        }
+
+        /// <summary>
+        /// Returns a list of all portlets with names matching the provided prefix.
+        /// </summary>
+        /// <param name="namePrefix">The prefix to be searched for in the names of portlets.</param>
+        /// <returns></returns>
+        public List<Portlet> ListPortlets(string namePrefix) {
+            List<Portlet> portlets = new List<Portlet>();
+
+            string query = @"SELECT * FROM Portlet WHERE PortletName LIKE '%' + @namePrefix + '%'";
+            using (SqlConnection conn = new SqlConnection(this._connectionString)) {
+                using (SqlCommand cmd = new SqlCommand(query, conn)) {
+                    cmd.Parameters.AddWithValue("@namePrefix", namePrefix);
+                    conn.Open();
+                    using (SqlDataReader r = cmd.ExecuteReader()) {
+                        while (r.Read()) {
+                            Portlet p = new Portlet();
+                            p.ID = r.GetInt32(0);
+                            p.Name = r.GetString(1);
+                            p.Description = r.GetString(2);
+                            p.Path = r.GetString(3);
+                            p.Icon = r.GetString(4);
+                            p.ConfigFields = ListConfigFields(p.ID);
+                            portlets.Add(p);
+                        }
+                    }
+                }
+            }
+
             return portlets;
         }
 
@@ -319,5 +350,14 @@ namespace onering.Database{
                 conn.Close();
             }
         }
+    }
+    public interface IOneRingDB {
+        void CreatePortlet(Portlet portlet);
+        List<Portlet> ListPortlets();
+        List<Portlet> ListPortlets(string namePrefix);
+        void CreateConfigField(ConfigField cf, int portletId);
+        List<ConfigField> ListConfigFields(int portletId);
+        void CreateConfigFieldOption(ConfigFieldOption option, int configFieldId);
+        List<ConfigFieldOption> ListConfigFieldOptions(int configFieldId);
     }
 }

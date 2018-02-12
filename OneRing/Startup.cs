@@ -48,7 +48,7 @@ namespace onering
             services.AddSession();
 
             // Add application services.
-            //services.AddSingleton<IConfiguration>(Configuration);
+            services.AddSingleton<Database.IOneRingDB, Database.Database>();
             services.AddSingleton<IGraphAuthProvider, GraphAuthProvider>();
             services.AddTransient<IGraphSdkHelper, GraphSdkHelper>();
         }

@@ -1,4 +1,4 @@
-
+@model List<onering.Models.Portlet>
 @{
     ViewData["Title"] = "Home Page";
 }
@@ -6,12 +6,87 @@
 <div>
     <h1>Portlet Catalog</h1>
     <div class="row">
-        <div class="col-md-6"></div>
-        <div class="col-md-6">
-            <h2>Portlet Name</h2>
-            <p>Here is some description</p>
-            <h2>Configuration</h2>
-            <p>Here is some configuration</p>
+        <div class="col-md-6 portlet-list">
+            @foreach (var portlet in Model) {
+                <div class="portlet-list-item">
+                    <img class="portlet-list-item-icon" src='@portlet.Icon'>
+                    <div class="portlet-list-item-name">@portlet.Name</div>
+                </div>
+//                 <pre>
+// @portlet.Name
+// @portlet.Description
+// @portlet.Path
+// @portlet.Icon
+
+
+// </pre>
+            }
+        </div>
+        <div class="col-md-6" id="portlet-description">
         </div>
     </div>
 </div>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+function makeClickFunc(portlet, desc_area) {
+    return function (){
+        console.log(portlet, desc_area);
+        desc_area.html(`
+            <h1>${portlet.name}</h1>
+            <p>${portlet.description}</p>
+        `);
+    }
+}
+function attach_click_funcs() {
+    $.get("/Catalog/Portlet").done((data) =>{
+        let domPortlets = $(".portlet-list-item");
+        let portletdivs = {};
+        domPortlets.each((index, elem)=>{
+            let name = $(elem).find(".portlet-list-item-name").text();
+            portletdivs[name] = $(elem);
+        });
+        console.log(portletdivs);
+        console.log(domPortlets);
+        // Register a click event for each portlet
+        for (portlet of data) {
+            console.log(portlet);
+            let desc_area = $("#portlet-description");
+            let div = portletdivs[portlet.name];
+            div.click(makeClickFunc(portlet, desc_area));
+        }
+    });
+}
+
+$(attach_click_funcs);
+</script>
+<style type="text/css">
+.portlet-list {
+    min-height: 70vh;
+    max-height: 75vh;
+    overflow-y: scroll;
+}
+.portlet-list-item {
+    border: 1px solid #ccc;
+    display: flex;
+    align-items: center;
+/*    justify-content: space-around;*/
+    margin: 8px;
+
+    cursor: pointer;
+
+    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+    transition: box-shadow 0.1s ease-in-out;
+}
+.portlet-list-item:hover {
+    box-shadow: 0 2px 4px rgba(0,128,255,0.2);
+}
+.portlet-list-item-icon {
+    height: 75px;
+    width: 75px;
+}
+.portlet-list-item-name {
+    font-size: 2.4rem;
+    font-weight: 700;
+    padding-left: 10vw;
+}
+</style>
