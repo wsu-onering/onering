@@ -20,14 +20,14 @@ namespace onering
 {
     public class Startup
     {
+        public IConfiguration Configuration { get; }
+        public const string ObjectIdentifierType = "http://schemas.microsoft.com/identity/claims/objectidentifier";
+        public const string TenantIdType = "http://schemas.microsoft.com/identity/claims/tenantid";
+        
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
-
-        public IConfiguration Configuration { get; }
-        public const string ObjectIdentifierType = "http://schemas.microsoft.com/identity/claims/objectidentifier";
-        public const string TenantIdType = "http://schemas.microsoft.com/identity/claims/tenantid";
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)

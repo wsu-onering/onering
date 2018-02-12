@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Net.Http;
-using System.Net;
 using System;
 
 using Newtonsoft.Json;
@@ -10,16 +9,14 @@ using Newtonsoft.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Graph;
-
 
 using onering.Helpers;
 using onering.Models;
 
-namespace onering.Controllers
+
+namespace onering.Controllers.Portlets
 {
     public class ToDoPortletController : Controller
     {
@@ -71,6 +68,7 @@ namespace onering.Controllers
                 this._db.CreatePortlet(p);
             }
         }
+
         [Authorize]
         // GET: TodoPortlet
         public async Task<IActionResult> Index()
@@ -108,6 +106,7 @@ namespace onering.Controllers
 
             return View(todos);
         }
+
         // POST: TodoPortlet
         [HttpPost]
         public async Task<IActionResult> MarkDone([FromBody] Dictionary<string, string> data){

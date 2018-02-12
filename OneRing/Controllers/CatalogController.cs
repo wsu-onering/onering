@@ -1,15 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 
 using onering.Models;
 
-namespace onering.Controllers {
-    public class CatalogController : Controller {
+namespace onering.Controllers
+{
+    public class CatalogController : Controller
+    {
         private readonly IConfiguration _configuration;
         private Database.IOneRingDB _db;
         public CatalogController(IConfiguration configuration, Database.IOneRingDB db) {
