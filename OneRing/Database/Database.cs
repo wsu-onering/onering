@@ -52,20 +52,21 @@ namespace onering.Database{
                 @path,
                 @icon
             )";
-            this.Open();
-            using (SqlCommand cmd = new SqlCommand(query, this._conn)) {
-                cmd.Parameters.AddWithValue("@name", portlet.Name);
-                cmd.Parameters.AddWithValue("@description", portlet.Description);
-                cmd.Parameters.AddWithValue("@path", portlet.Path);
-                cmd.Parameters.AddWithValue("@icon", portlet.Icon);
-                int portletId = (int)cmd.ExecuteScalar();
-                if (portlet.ConfigFields != null) {
-                    foreach (ConfigField field in portlet.ConfigFields) {
-                        CreateConfigField(field, portletId);
+            using (SqlConnection conn = new SqlConnection(this._connectionString)) {
+                using (SqlCommand cmd = new SqlCommand(query, conn)) {
+                    cmd.Parameters.AddWithValue("@name", portlet.Name);
+                    cmd.Parameters.AddWithValue("@description", portlet.Description);
+                    cmd.Parameters.AddWithValue("@path", portlet.Path);
+                    cmd.Parameters.AddWithValue("@icon", portlet.Icon);
+                    conn.Open();
+                    int portletId = (int)cmd.ExecuteScalar();
+                    if (portlet.ConfigFields != null) {
+                        foreach (ConfigField field in portlet.ConfigFields) {
+                            CreateConfigField(field, portletId);
+                        }
                     }
                 }
             }
-            this.Close();
         }
 
         /// <summary>
@@ -76,18 +77,20 @@ namespace onering.Database{
             List<Portlet> portlets = new List<Portlet>();
 
             string query = @"SELECT * FROM Portlet";
-            this.Open();
-            using (SqlCommand cmd = new SqlCommand(query, this._conn)) {
-                using (SqlDataReader r = cmd.ExecuteReader()) {
-                    while (r.Read()) {
-                        Portlet p = new Portlet();
-                        p.ID = r.GetInt32(0);
-                        p.Name = r.GetString(1);
-                        p.Description = r.GetString(2);
-                        p.Path = r.GetString(3);
-                        p.Icon = r.GetString(4);
-                        p.ConfigFields = ListConfigFields(p.ID);
-                        portlets.Add(p);
+            using (SqlConnection conn = new SqlConnection(this._connectionString)) {
+                using (SqlCommand cmd = new SqlCommand(query, conn)) {
+                    conn.Open();
+                    using (SqlDataReader r = cmd.ExecuteReader()) {
+                        while (r.Read()) {
+                            Portlet p = new Portlet();
+                            p.ID = r.GetInt32(0);
+                            p.Name = r.GetString(1);
+                            p.Description = r.GetString(2);
+                            p.Path = r.GetString(3);
+                            p.Icon = r.GetString(4);
+                            p.ConfigFields = ListConfigFields(p.ID);
+                            portlets.Add(p);
+                        }
                     }
                 }
             }

@@ -13,8 +13,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
+using Newtonsoft.Json;
+
 using onering.Extensions;
 using onering.Helpers;
+using onering.Models;
 
 namespace onering
 {
@@ -23,7 +26,7 @@ namespace onering
         public IConfiguration Configuration { get; }
         public const string ObjectIdentifierType = "http://schemas.microsoft.com/identity/claims/objectidentifier";
         public const string TenantIdType = "http://schemas.microsoft.com/identity/claims/tenantid";
-        
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -57,6 +60,9 @@ namespace onering
         // the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
+            // Configure and setup our database(s)
+            this.ConfigureDatabase(env);
+
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
@@ -81,6 +87,58 @@ namespace onering
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+        }
+
+        // Configures the various databses we're tasked with. If we're in Development mode, then we
+        // populate those databases with some example values.
+        private void ConfigureDatabase(IHostingEnvironment env) {
+            Database.Database.EnsureTablesCreated(this.Configuration.GetSection("Databases")["OneRing"]);
+
+            if (!env.IsDevelopment()) {
+                return;
+            }
+            Debug.WriteLine("We've ensured that the database tables do exist.");
+            Portlet portlet = new Portlet {
+                Name = "ExamplePortlet",
+                Description = "This is the example portlet.",
+                Path = "/TodoPortlet/Index",
+                Icon = "https://placeimg.com/150/150/tech",
+                ConfigFields = new List<ConfigField>{
+                    new ConfigField {
+                        Name = "The options available:",
+                        Description = "Indeed this is a field, with some options for things you can have.",
+                        ConfigFieldOptions = new List<ConfigFieldOption> {
+                            new ConfigFieldOption{ Value = "Red fish" },
+                            new ConfigFieldOption{ Value = "Blue fish" },
+                        }
+                    },
+                    new ConfigField {
+                        Name = "Freeform input field:",
+                        Description = "As a user, you can input whatever your heart desires into here."
+                    }
+                }
+            };
+            Database.Database db = new Database.Database(this.Configuration);
+
+            if (!db.ListPortlets().Any()) {
+                db.CreatePortlet(portlet);
+                db.CreatePortlet(new Portlet {
+                    Name = "ExtraCoolPortlet",
+                    Description = "An extra cool portlet.",
+                    Path = "",
+                    Icon = "https://placeimg.com/150/150/tech",
+                });
+                db.CreatePortlet(new Portlet {
+                    Name = "NotAsCoolPortlet",
+                    Description = "A portlet that is not as cool.",
+                    Path = "",
+                    Icon = "https://placeimg.com/150/150/tech",
+                });
+            }
+            Debug.WriteLine(JsonConvert.SerializeObject(portlet, Formatting.Indented));
+            Debug.WriteLine(JsonConvert.SerializeObject(db.ListPortlets(), Formatting.Indented));
+            Debug.WriteLine(JsonConvert.SerializeObject(db.ListPortlets("Ex"), Formatting.Indented));
+
         }
     }
 }
