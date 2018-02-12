@@ -29,7 +29,6 @@ function todoClicked(row) {
             'url': '/TodoPortlet/MarkDone'
         }).done(() => {
             console.log("We sent the thing off and we hope it went well!");
-            //location.reload();
         }).fail((stuff) => {
             console.log("Apparently everything failed : (");
             console.log(stuff);
