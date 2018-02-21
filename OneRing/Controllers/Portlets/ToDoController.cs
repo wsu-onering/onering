@@ -18,7 +18,7 @@ using onering.Models;
 
 namespace onering.Controllers.Portlets
 {
-    public class ToDoPortletController : Controller
+    public class ToDoController : Controller
     {
         private readonly Dictionary<string, string> datasources = new Dictionary<string, string>{
                 { "1", "http://todotestsite.azurewebsites.net/api/values/" },
@@ -29,44 +29,13 @@ namespace onering.Controllers.Portlets
         private readonly IHostingEnvironment _env;
         private readonly IGraphAuthProvider _graphAuthProvider;
         private Database.IOneRingDB _db;
-        private string PortletName = "ToDo";
-        private string PortletDescription = "View all the items in your To-Do lists.";
-        private string PortletIconPath = "http://lelandbatey.com/favicon.ico";
-        public ToDoPortletController(IConfiguration configuration, IHostingEnvironment hostingEnvironment, IGraphAuthProvider graphAuthProvider, Database.IOneRingDB db)
+
+        public ToDoController(IConfiguration configuration, IHostingEnvironment hostingEnvironment, IGraphAuthProvider graphAuthProvider, Database.IOneRingDB db)
         {
             _configuration = configuration;
             _env = hostingEnvironment;
             _graphAuthProvider = graphAuthProvider;
             _db = db;
-
-            // Check if this portlet already exists in the Database, and if it isn't there, put it
-            // into the database.
-            bool weExist = false;
-            foreach (Portlet portlet in _db.ListPortlets(this.PortletName)) {
-                if (portlet.Name == this.PortletName) {
-                    weExist = true;
-                    Debug.Print("We found a portlet with the same name as us: {0}, us {1}", portlet.Name, this.PortletName);
-                }
-            }
-            if (!weExist) {
-                Portlet p = new Portlet {
-                    Name = this.PortletName,
-                    Description = this.PortletDescription,
-                    Path = this.GetType().Name.Replace("Controller", ""),
-                    Icon = this.PortletIconPath,
-                    ConfigFields = new List<ConfigField> {
-                        new ConfigField {
-                            Name = "Data source:",
-                            Description = "The data source from which to retrieve your ToDo items.",
-                            ConfigFieldOptions = new List<ConfigFieldOption> {
-                                new ConfigFieldOption { Value = "http://todotestsite.azurewebsites.net/api/values/"},
-                                new ConfigFieldOption { Value = "http://todotestsite2.azurewebsites.net/api/values/"},
-                            }
-                        }
-                    }
-                };
-                this._db.CreatePortlet(p);
-            }
         }
 
         [Authorize]
@@ -104,7 +73,7 @@ namespace onering.Controllers.Portlets
             }
             Debug.Print("User Id is: {0}", id);
 
-            return View(todos);
+            return View("~/Views/Portlets/ToDo/Index.cshtml", todos);
         }
 
         // POST: TodoPortlet
@@ -139,5 +108,14 @@ namespace onering.Controllers.Portlets
 
             return Json(new Dictionary<int, int>());
         }
+    }
+    public class ToDoPortlet : Models.Interfaces.IPortlet {
+        public string PortletName {get { return _PortletName; } }
+        public string PortletDescription { get { return _PortletDescription; } }
+        public string PortletIconPath { get { return _PortletIconPath; } }
+        public string PortletPath  { get { return typeof(ToDoController).Name.Replace("Controller", ""); } }
+        private static string _PortletName = "ToDo";
+        private static string _PortletDescription = "View all the items in your To-Do lists.";
+        private static string _PortletIconPath = "http://lelandbatey.com/favicon.ico";
     }
 }

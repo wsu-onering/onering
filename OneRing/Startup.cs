@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -93,11 +94,13 @@ namespace onering
         // populate those databases with some example values.
         private void ConfigureDatabase(IHostingEnvironment env) {
             Database.Database.EnsureTablesCreated(this.Configuration.GetSection("Databases")["OneRing"]);
+            Database.Database db = new Database.Database(this.Configuration);
+            InitializePortlets(db);
 
             if (!env.IsDevelopment()) {
                 return;
             }
-            Debug.WriteLine("We've ensured that the database tables do exist.");
+            Debug.Print("We've ensured that the database tables do exist.");
             Portlet portlet = new Portlet {
                 Name = "ExamplePortlet",
                 Description = "This is the example portlet.",
@@ -118,7 +121,6 @@ namespace onering
                     }
                 }
             };
-            Database.Database db = new Database.Database(this.Configuration);
 
             if (!db.ListPortlets().Any()) {
                 db.CreatePortlet(portlet);
@@ -135,10 +137,82 @@ namespace onering
                     Icon = "https://placeimg.com/150/150/tech",
                 });
             }
-            Debug.WriteLine(JsonConvert.SerializeObject(portlet, Formatting.Indented));
-            Debug.WriteLine(JsonConvert.SerializeObject(db.ListPortlets(), Formatting.Indented));
-            Debug.WriteLine(JsonConvert.SerializeObject(db.ListPortlets("Ex"), Formatting.Indented));
+            Debug.Print(JsonConvert.SerializeObject(portlet, Formatting.Indented));
+            Debug.Print(JsonConvert.SerializeObject(db.ListPortlets(), Formatting.Indented));
+            Debug.Print(JsonConvert.SerializeObject(db.ListPortlets("Ex"), Formatting.Indented));
 
+        }
+
+        /// <summary>
+        /// Uses reflection to find all classes implementing IPortlet, then initializes each Portlet
+        /// in the provided database, if that portlet doesn't exist in the database already.
+        /// </summary>
+        /// <param name="db">an IOneRingDB, used to read portlet state and initialize new portlets.</param>
+        private static void InitializePortlets(Database.IOneRingDB db) {
+            List<Portlet> existing = db.ListPortlets();
+
+            // PropertyInfo[] portletProps = typeof(Models.Interfaces.IPortlet).GetProperties();
+            foreach (Type portletClass in GetTypesImplementingInterface<Models.Interfaces.IPortlet>()) {
+                // Create an instance of the IPortlet
+                Models.Interfaces.IPortlet portlet = Activator.CreateInstance(portletClass) as Models.Interfaces.IPortlet;
+                // Get the name of the portlet through reflection
+                PropertyInfo nameInf = portletClass.GetProperty("PortletName");
+                string currentName = (string)nameInf.GetValue(portlet);
+
+                // Check if a portlet of the given name already exists in the DB. If it does exist,
+                // do not insert this portlet into the DB.
+                bool weExist = false;
+                foreach (Portlet p in db.ListPortlets(currentName)) {
+                    if (p.Name == currentName) {
+                        weExist = true;
+                        Debug.WriteLine("We found a portlet with the same name as us: their name {0}, our name {1}", p.Name, currentName);
+                    }
+                }
+                if (weExist) {
+                    continue;
+                }
+                // This portlet doesn't exist in the DB, so let's insert it now.
+                Portlet newP = new Portlet {
+                    Name = currentName,
+                    Description = (string)portletClass.GetProperty("PortletDescription").GetValue(portlet),
+                    Path = (string)portletClass.GetProperty("PortletPath").GetValue(portlet),
+                    Icon = (string)portletClass.GetProperty("PortletIconPath").GetValue(portlet)
+                };
+                Debug.WriteLine("The portlet {0} doesn't exist in the DB, creating it now.", currentName, "");
+                db.CreatePortlet(newP);
+            }
+        }
+
+        /// <summary>
+        /// The intended use of this method is to find all types implementing IPortlet, then call the
+        /// various static properties of those types, providing metadata about each Portlet.
+        /// </summary>
+        /// <returns>Returns an IEnumerable of all the types in the entry assembly which implement the interface T.</returns>
+        private static IEnumerable<Type> GetTypesImplementingInterface<T>()
+        {
+            Assembly assembly = Assembly.GetEntryAssembly();
+            foreach (TypeInfo ti in assembly.DefinedTypes)
+            {
+                if (ti.ImplementedInterfaces.Contains(typeof(T)))
+                {
+                    // Debug.WriteLine("    !!!! Found type {0} implementing type {1} !!!!", ti.FullName, typeof(T).FullName);
+                    yield return ti.AsType();
+                }
+            }
+
+            AssemblyName[] assemblies = assembly.GetReferencedAssemblies();
+            foreach (AssemblyName assemblyName in assemblies)
+            {
+                assembly = Assembly.Load(assemblyName);
+                foreach (TypeInfo ti in assembly.DefinedTypes)
+                {
+                    if (ti.ImplementedInterfaces.Contains(typeof(T)))
+                    {
+                        // Debug.WriteLine("    !!!! Found type {0} implementing type {1} !!!!", ti.FullName, typeof(T).FullName);
+                        yield return ti.AsType();
+                    }
+                }
+            }
         }
     }
 }
