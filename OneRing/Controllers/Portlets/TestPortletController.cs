@@ -28,7 +28,7 @@ namespace onering.Controllers.Portlets
             foreach (Portlet portlet in _db.ListPortlets(this.PortletName)) {
                 if (portlet.Name == this.PortletName) {
                     weExist = true;
-                    Debug.Print("We found a portlet with the same name as us: {0}, us {1}", portlet.Name, this.PortletName);
+                    Debug.WriteLine("We found a portlet with the same name as us: {0}, us {1}", portlet.Name, this.PortletName);
                 }
             }
             if (weExist) {
