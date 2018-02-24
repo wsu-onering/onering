@@ -101,45 +101,88 @@ namespace onering
                 return;
             }
             Debug.Print("We've ensured that the database tables do exist.");
-            Portlet portlet = new Portlet {
-                Name = "ExamplePortlet",
-                Description = "This is the example portlet.",
-                Path = "/TodoPortlet/Index",
-                Icon = "https://placeimg.com/150/150/tech",
-                ConfigFields = new List<ConfigField>{
-                    new ConfigField {
-                        Name = "The options available:",
-                        Description = "Indeed this is a field, with some options for things you can have.",
-                        ConfigFieldOptions = new List<ConfigFieldOption> {
-                            new ConfigFieldOption{ Value = "Red fish" },
-                            new ConfigFieldOption{ Value = "Blue fish" },
+            List<Portlet> testPortlets = new List<Portlet> {
+                new Portlet {
+                    Name = "ExamplePortlet",
+                    Description = "This is the example portlet.",
+                    Path = "/TodoPortlet/Index",
+                    Icon = "https://placeimg.com/150/150/tech",
+                    ConfigFields = new List<ConfigField>{
+                        new ConfigField {
+                            Name = "The options available:",
+                            Description = "Indeed this is a field, with some options for things you can have.",
+                            ConfigFieldOptions = new List<ConfigFieldOption> {
+                                new ConfigFieldOption{
+                                    Name = "Red fish",
+                                    Value = "#FF0000"
+                                },
+                                new ConfigFieldOption{
+                                    Name = "Blue fish",
+                                    Value = "#0000FF"
+                                },
+                            }
+                        },
+                        new ConfigField {
+                            Name = "Freeform input field:",
+                            Description = "As a user, you can input whatever your heart desires into here."
                         }
-                    },
-                    new ConfigField {
-                        Name = "Freeform input field:",
-                        Description = "As a user, you can input whatever your heart desires into here."
                     }
-                }
-            };
-
-            if (!db.ListPortlets().Any()) {
-                db.CreatePortlet(portlet);
-                db.CreatePortlet(new Portlet {
+                },
+                new Portlet {
                     Name = "ExtraCoolPortlet",
                     Description = "An extra cool portlet.",
                     Path = "",
                     Icon = "https://placeimg.com/150/150/tech",
-                });
-                db.CreatePortlet(new Portlet {
+                },
+                new Portlet {
                     Name = "NotAsCoolPortlet",
                     Description = "A portlet that is not as cool.",
                     Path = "",
                     Icon = "https://placeimg.com/150/150/tech",
-                });
+                }
+            };
+            foreach (Portlet p in testPortlets) {
+                if (!db.ListPortlets(p.Name).Any()) {
+                    db.CreatePortlet(p);
+                }
             }
-            Debug.Print(JsonConvert.SerializeObject(portlet, Formatting.Indented));
+
+            List<OneRingUser> testUsers = new List<OneRingUser> {
+                new OneRingUser {
+                    GraphID = "5ccf0b05-702a-49dc-b0e3-ae10eb601170",
+                    PortletInstances = new List<PortletInstance> {
+                        new PortletInstance {
+                            ID = 1,
+                            Portlet = new Portlet{ Name = "ExamplePortlet" },
+                            Height = 1,
+                            Width = 1,
+                            XPos = 0,
+                            YPos = 0,
+                            ConfigFieldInstances = new List<ConfigFieldInstance> {
+                                new ConfigFieldInstance {
+                                    ConfigFieldInstanceValue = "This is a test value",
+                                    ConfigField = new ConfigField { ID = 2 }
+                                },
+                                new ConfigFieldInstance {
+                                    ConfigFieldOption = new ConfigFieldOption { ID = 1 }
+                                }
+                            }
+                        }
+                    },
+                }
+            };
+            foreach (OneRingUser user in testUsers) {
+                if (!db.ListOneRingUsers(user.GraphID).Any()) {
+                    db.CreateOneRingUser(user);
+                }
+            }
+            Debug.Print(JsonConvert.SerializeObject(testPortlets, Formatting.Indented));
             Debug.Print(JsonConvert.SerializeObject(db.ListPortlets(), Formatting.Indented));
             Debug.Print(JsonConvert.SerializeObject(db.ListPortlets("Ex"), Formatting.Indented));
+            Debug.Print(JsonConvert.SerializeObject(
+                db.ListOneRingUsers("5ccf0b05-702a-49dc-b0e3-ae10eb601170"),
+                Formatting.Indented,
+                new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
 
         }
 

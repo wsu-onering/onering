@@ -16,7 +16,7 @@ using onering.Helpers;
 namespace onering.Extensions
 {
     public static class AzureAdAuthenticationBuilderExtensions
-    {        
+    {
         public static AuthenticationBuilder AddAzureAd(this AuthenticationBuilder builder)
             => builder.AddAzureAd(_ => { });
 
@@ -87,24 +87,24 @@ namespace onering.Extensions
                         var identifier = context.Principal.FindFirst(Startup.ObjectIdentifierType).Value;
                         var memoryCache = context.HttpContext.RequestServices.GetRequiredService<IMemoryCache>();
                         var graphScopes = _azureOptions.GraphScopes.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                        
+
                         var cca = new ConfidentialClientApplication(
-                            _azureOptions.ClientId, 
+                            _azureOptions.ClientId,
                             _azureOptions.BaseUrl + _azureOptions.CallbackPath,
                             new ClientCredential(_azureOptions.ClientSecret),
-                            new SessionTokenCache(identifier, memoryCache).GetCacheInstance(), 
+                            new SessionTokenCache(identifier, memoryCache).GetCacheInstance(),
                             null);
                         // Result will contain the access token
                         var result = await cca.AcquireTokenByAuthorizationCodeAsync(code, graphScopes);
 
-                        // Check whether the login is from the MSA tenant. 
+                        // Check whether the login is from the MSA tenant.
                         // The sample uses this attribute to disable UI buttons for unsupported operations when the user is logged in with an MSA account.
                         var currentTenantId = context.Principal.FindFirst(Startup.TenantIdType).Value;
                         if (currentTenantId == "9188040d-6c67-4c5b-b112-36a304b66dad")
                         {
                             // MSA (Microsoft Account) is used to log in
                         }
-                        
+
                         context.HandleCodeRedemption(result.AccessToken, result.IdToken);
                     },
                     // If your application needs to do authenticate single users, add your user validation below.
