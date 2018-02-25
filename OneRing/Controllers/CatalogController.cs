@@ -26,5 +26,11 @@ namespace onering.Controllers
         public IEnumerable<Portlet> Portlet() {
             return _db.ListPortlets();
         }
+
+        // Creates a new portlet instance for a given user
+        [HttpPost]
+        public IActionResult PortletInstance() {
+            return Json(new Dictionary<int, int>());
+        }
     }
 }

@@ -43,8 +43,9 @@ namespace onering.Controllers.Portlets
         public async Task<IActionResult> Index()
         {
             string id = this.User.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier").Value;
-            Debug.Print("User Id is: {0}", id);
+            // Debug.Print("User Id is: {0}", id);
 
+            // Retrieve all the ToDo list entries for placement in the view
             List<ToDoItemView> todos = new List<ToDoItemView>();
             foreach (KeyValuePair<string, string> entry in datasources){
                 HttpClient client = new HttpClient();
@@ -71,7 +72,7 @@ namespace onering.Controllers.Portlets
                     }
                 }
             }
-            Debug.Print("User Id is: {0}", id);
+            // Debug.Print("User Id is: {0}", id);
 
             return View("~/Views/Portlets/ToDo/Index.cshtml", todos);
         }
