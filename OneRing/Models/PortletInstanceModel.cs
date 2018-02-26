@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Data.SqlClient;
 
 namespace onering.Models
 {
@@ -26,5 +27,16 @@ namespace onering.Models
         public int XPos {get; set;}
         public int YPos {get; set;}
 
+
+        public static PortletInstance ReadFromDb(SqlDataReader reader)
+        {
+            return new PortletInstance {
+                ID = reader.GetInt32(0),
+                Height = reader.GetInt32(3),
+                Width = reader.GetInt32(4),
+                XPos = reader.GetInt32(5),
+                YPos = reader.GetInt32(6)
+            };
+        }
     }
 }

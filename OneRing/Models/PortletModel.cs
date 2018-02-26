@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Data.SqlClient;
 
 namespace onering.Models
 {
@@ -18,5 +19,16 @@ namespace onering.Models
         public string Icon { get; set; }
         // ConfigFields is a list of all the config fields associated with this portlet.
         public List<ConfigField> ConfigFields { get; set; }
+
+        public static Portlet ReadFromDb(SqlDataReader reader)
+        {
+            return new Portlet {
+                ID = reader.GetInt32(0),
+                Name = reader.GetString(1),
+                Description = reader.GetString(2),
+                Path = reader.GetString(3),
+                Icon = reader.GetString(4)
+            };
+        }
     }
 }

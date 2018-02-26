@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Data.SqlClient;
 
 namespace onering.Models
 {
@@ -11,5 +12,15 @@ namespace onering.Models
         // Description is a description of this field for configuration purposes.
         public string Description { get; set; }
         public List<ConfigFieldOption> ConfigFieldOptions;
+
+        
+        public static ConfigField ReadFromDb(SqlDataReader reader)
+        {
+            return new ConfigField {
+                ID = reader.GetInt32(0),
+                Name = reader.GetString(1),
+                Description = reader.GetString(2)
+            };
+        }
     }
 }
