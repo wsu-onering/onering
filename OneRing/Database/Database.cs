@@ -358,7 +358,7 @@ namespace onering.Database{
                         while (r.Read()) {
                             ConfigFieldOption co = new ConfigFieldOption();
                             co.ID = r.GetInt32(0);
-                            co.Value = r.GetString(1);
+                            co.Name = r.GetString(1);
                             co.Value = r.GetString(2);
                             options.Add(co);
                         }
@@ -725,6 +725,9 @@ namespace onering.Database{
         }
     }
     public interface IOneRingDB {
+        void CreateOneRingUser(OneRingUser user);
+        List<OneRingUser> ListOneRingUsers(string graphid);
+        List<OneRingUser> ListBareOneRingUsers(OneRingUser user);
         void CreatePortlet(Portlet portlet);
         List<Portlet> ListPortlets();
         List<Portlet> ListPortlets(string namePrefix);
@@ -732,5 +735,8 @@ namespace onering.Database{
         List<ConfigField> ListConfigFields(int portletId);
         void CreateConfigFieldOption(ConfigFieldOption option, int configFieldId);
         List<ConfigFieldOption> ListConfigFieldOptions(int configFieldId);
+        void CreatePortletInstance(PortletInstance inst);
+        List<PortletInstance> ListPortletInstances(OneRingUser user);
+        List<PortletInstance> ListPortletInstances(PortletInstance pi);
     }
 }
