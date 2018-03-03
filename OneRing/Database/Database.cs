@@ -7,9 +7,28 @@ using Microsoft.Extensions.Configuration;
 
 using onering.Models;
 
-namespace onering.Database{
-    public class Database : IOneRingDB {
+namespace onering.Database
+{
+    public interface IOneRingDB
+    {
+        void CreateOneRingUser(OneRingUser user);
+        List<OneRingUser> ListOneRingUsers(string graphid);
+        List<OneRingUser> ListBareOneRingUsers(OneRingUser user);
+        void CreatePortlet(Portlet portlet);
+        List<Portlet> ListPortlets();
+        List<Portlet> ListPortlets(string namePrefix);
+        void CreateConfigField(ConfigField cf, int portletId);
+        List<ConfigField> ListConfigFields(int portletId);
+        void CreateConfigFieldOption(ConfigFieldOption option, int configFieldId);
+        List<ConfigFieldOption> ListConfigFieldOptions(int configFieldId);
+        void CreatePortletInstance(PortletInstance inst);
+        List<PortletInstance> ListPortletInstances(OneRingUser user);
+        List<PortletInstance> ListPortletInstances(PortletInstance pi);
+    }
 
+
+    public class Database : IOneRingDB
+    {
         /// <summary>
         /// _connectionString is the connection string to the database. This is used implicitly by
         /// all queries to the database, except for the EnsureTablesCreated method, which requires
@@ -20,20 +39,23 @@ namespace onering.Database{
         private string _connectionString;
         private SqlConnection _conn;
         private IConfiguration _configuration;
+
+        public Database(IConfiguration configuration){
+            _configuration = configuration;
+            _connectionString = _configuration.GetSection("Databases")["OneRing"];
+            _conn = new SqlConnection(_connectionString);
+        }
+
         private void Open() {
             if (_conn.State != System.Data.ConnectionState.Open) {
                 _conn.Open();
             }
         }
+
         private void Close() {
             if (_conn.State != System.Data.ConnectionState.Closed) {
                 _conn.Close();
             }
-        }
-        public Database(IConfiguration configuration){
-            _configuration = configuration;
-            _connectionString = _configuration.GetSection("Databases")["OneRing"];
-            _conn = new SqlConnection(_connectionString);
         }
 
         /// <summary>
@@ -80,16 +102,11 @@ namespace onering.Database{
             using (SqlConnection conn = new SqlConnection(this._connectionString)) {
                 using (SqlCommand cmd = new SqlCommand(query, conn)) {
                     conn.Open();
-                    using (SqlDataReader r = cmd.ExecuteReader()) {
-                        while (r.Read()) {
-                            Portlet p = new Portlet();
-                            p.ID = r.GetInt32(0);
-                            p.Name = r.GetString(1);
-                            p.Description = r.GetString(2);
-                            p.Path = r.GetString(3);
-                            p.Icon = r.GetString(4);
-                            p.ConfigFields = ListConfigFields(p.ID);
-                            portlets.Add(p);
+                    using (SqlDataReader reader = cmd.ExecuteReader()) {
+                        while (reader.Read()) {
+                            Portlet portal = Portlet.ReadFromDb(reader);
+                            portal.ConfigFields = ListConfigFields(portal.ID);
+                            portlets.Add(portal);
                         }
                     }
                 }
@@ -110,16 +127,11 @@ namespace onering.Database{
                 using (SqlCommand cmd = new SqlCommand(query, conn)) {
                     cmd.Parameters.AddWithValue("@namePrefix", namePrefix);
                     conn.Open();
-                    using (SqlDataReader r = cmd.ExecuteReader()) {
-                        while (r.Read()) {
-                            Portlet p = new Portlet();
-                            p.ID = r.GetInt32(0);
-                            p.Name = r.GetString(1);
-                            p.Description = r.GetString(2);
-                            p.Path = r.GetString(3);
-                            p.Icon = r.GetString(4);
-                            p.ConfigFields = ListConfigFields(p.ID);
-                            portlets.Add(p);
+                    using (SqlDataReader reader = cmd.ExecuteReader()) {
+                        while (reader.Read()) {
+                            Portlet portal = Portlet.ReadFromDb(reader);
+                            portal.ConfigFields = ListConfigFields(portal.ID);
+                            portlets.Add(portal);
                         }
                     }
                 }
@@ -141,16 +153,11 @@ namespace onering.Database{
                 using (SqlCommand cmd = new SqlCommand(query, conn)) {
                     cmd.Parameters.AddWithValue("@portletid", id);
                     conn.Open();
-                    using (SqlDataReader r = cmd.ExecuteReader()) {
-                        while (r.Read()) {
-                            Portlet p = new Portlet();
-                            p.ID = r.GetInt32(0);
-                            p.Name = r.GetString(1);
-                            p.Description = r.GetString(2);
-                            p.Path = r.GetString(3);
-                            p.Icon = r.GetString(4);
-                            p.ConfigFields = ListConfigFields(p.ID);
-                            portlets.Add(p);
+                    using (SqlDataReader reader = cmd.ExecuteReader()) {
+                        while (reader.Read()) {
+                            Portlet portal = Portlet.ReadFromDb(reader);
+                            portal.ConfigFields = ListConfigFields(portal.ID);
+                            portlets.Add(portal);
                         }
                     }
                 }
@@ -197,11 +204,11 @@ namespace onering.Database{
                 using (SqlCommand cmd = new SqlCommand(query, conn)) {
                     cmd.Parameters.AddWithValue("@graphid", graphid);
                     conn.Open();
-                    using (SqlDataReader r = cmd.ExecuteReader()) {
-                        while (r.Read()) {
+                    using (SqlDataReader reader = cmd.ExecuteReader()) {
+                        while (reader.Read()) {
                             OneRingUser u = new OneRingUser();
-                            u.ID = r.GetInt32(0);
-                            u.GraphID = r.GetString(1);
+                            u.ID = reader.GetInt32(0);
+                            u.GraphID = reader.GetString(1);
                             u.PortletInstances = ListPortletInstances(u);
                             users.Add(u);
                         }
@@ -220,11 +227,11 @@ namespace onering.Database{
                 using (SqlCommand cmd = new SqlCommand(query, conn)) {
                     cmd.Parameters.AddWithValue("@UserID", user.ID);
                     conn.Open();
-                    using (SqlDataReader r = cmd.ExecuteReader()) {
-                        while (r.Read()) {
+                    using (SqlDataReader reader = cmd.ExecuteReader()) {
+                        while (reader.Read()) {
                             OneRingUser u = new OneRingUser();
-                            u.ID = r.GetInt32(0);
-                            u.GraphID = r.GetString(1);
+                            u.ID = reader.GetInt32(0);
+                            u.GraphID = reader.GetString(1);
                             users.Add(u);
                         }
                     }
@@ -267,19 +274,16 @@ namespace onering.Database{
             }
         }
         // Retrieve all the configfield(s) assocaited with a given portlet.
-        public List<ConfigField> ListConfigFields(int portletId) {
+        public  List<ConfigField> ListConfigFields(int portletId) {
             List<ConfigField> fields = new List<ConfigField>();
             string query = @"SELECT * FROM ConfigField WHERE PortletID=@portletid";
             using (SqlConnection conn = new SqlConnection(this._connectionString)) {
                 using (SqlCommand cmd = new SqlCommand(query, conn)) {
                     cmd.Parameters.AddWithValue("@portletid", portletId);
                     conn.Open();
-                    using (SqlDataReader r = cmd.ExecuteReader()) {
-                        while (r.Read()) {
-                            ConfigField cf = new ConfigField();
-                            cf.ID = r.GetInt32(0);
-                            cf.Name = r.GetString(1);
-                            cf.Description = r.GetString(2);
+                    using (SqlDataReader reader = cmd.ExecuteReader()) {
+                        while (reader.Read()) {
+                            ConfigField cf = ConfigField.ReadFromDb(reader);
                             cf.ConfigFieldOptions = ListConfigFieldOptions(cf.ID);
                             fields.Add(cf);
                         }
@@ -305,12 +309,9 @@ namespace onering.Database{
                 using (SqlCommand cmd = new SqlCommand(query, conn)) {
                     cmd.Parameters.AddWithValue("@configfieldid", inptCF.ID);
                     conn.Open();
-                    using (SqlDataReader r = cmd.ExecuteReader()) {
-                        while (r.Read()) {
-                            ConfigField cf = new ConfigField();
-                            cf.ID = r.GetInt32(0);
-                            cf.Name = r.GetString(1);
-                            cf.Description = r.GetString(2);
+                    using (SqlDataReader reader = cmd.ExecuteReader()) {
+                        while (reader.Read()) {
+                            ConfigField cf = ConfigField.ReadFromDb(reader);
                             cf.ConfigFieldOptions = ListConfigFieldOptions(cf.ID);
                             fields.Add(cf);
                         }
@@ -384,13 +385,9 @@ namespace onering.Database{
                 using (SqlCommand cmd = new SqlCommand(query, conn)) {
                     cmd.Parameters.AddWithValue("@configfieldoptionid", cfo.ID);
                     conn.Open();
-                    using (SqlDataReader r = cmd.ExecuteReader()) {
-                        while (r.Read()) {
-                            ConfigFieldOption co = new ConfigFieldOption();
-                            co.ID = r.GetInt32(0);
-                            co.Name = r.GetString(1);
-                            co.Value = r.GetString(2);
-                            options.Add(co);
+                    using (SqlDataReader reader = cmd.ExecuteReader()) {
+                        while (reader.Read()) {
+                            options.Add(ConfigFieldOption.ReadFromDb(reader));
                         }
                     }
                 }
@@ -448,16 +445,11 @@ namespace onering.Database{
                 using (SqlCommand cmd = new SqlCommand(query, conn)) {
                     cmd.Parameters.AddWithValue("@userid", user.ID);
                     conn.Open();
-                    using (SqlDataReader r = cmd.ExecuteReader()) {
-                        while (r.Read()) {
-                            PortletInstance pi = new PortletInstance();
-                            pi.ID = r.GetInt32(0);
-                            pi.Portlet = ListPortlets(r.GetInt32(1))[0];
-                            pi.User = ListBareOneRingUsers(new OneRingUser{ ID = r.GetInt32(2) })[0];
-                            pi.Height = r.GetInt32(3);
-                            pi.Width = r.GetInt32(4);
-                            pi.XPos = r.GetInt32(5);
-                            pi.YPos = r.GetInt32(6);
+                    using (SqlDataReader reader = cmd.ExecuteReader()) {
+                        while (reader.Read()) {
+                            PortletInstance pi = PortletInstance.ReadFromDb(reader);
+                            pi.Portlet = ListPortlets(reader.GetInt32(1))[0];
+                            pi.User = ListBareOneRingUsers(new OneRingUser{ ID = reader.GetInt32(2) })[0];
                             pi.ConfigFieldInstances = ListConfigFieldInstances(pi);
                             // Ensure that the PortletInstance field of each ConfigFieldInstance is
                             // set to point to the newly-created PortletInstance. This does lead to
@@ -491,16 +483,12 @@ namespace onering.Database{
                 using (SqlCommand cmd = new SqlCommand(query, conn)) {
                     cmd.Parameters.AddWithValue("@portletinstanceid", pi.ID);
                     conn.Open();
-                    using (SqlDataReader r = cmd.ExecuteReader()) {
-                        while (r.Read()) {
-                            PortletInstance out_pi = new PortletInstance();
-                            out_pi.ID = r.GetInt32(0);
-                            out_pi.Portlet = ListPortlets(r.GetInt32(1))[0];
-                            out_pi.User = ListOneRingUsers(r.GetString(2))[0];
-                            out_pi.Height = r.GetInt32(3);
-                            out_pi.Width = r.GetInt32(4);
-                            out_pi.XPos = r.GetInt32(5);
-                            out_pi.YPos = r.GetInt32(6);
+                    using (SqlDataReader reader = cmd.ExecuteReader()) {
+                        while (reader.Read()) {
+
+                            PortletInstance out_pi = PortletInstance.ReadFromDb(reader);
+                            out_pi.Portlet = ListPortlets(reader.GetInt32(1))[0];
+                            out_pi.User = ListOneRingUsers(reader.GetString(2))[0];
                             out_pi.ConfigFieldInstances = ListConfigFieldInstances(out_pi);
                             // Ensure that the PortletInstance field of each ConfigFieldInstance is
                             // set to point to the newly-created PortletInstance. This does lead to
@@ -571,21 +559,21 @@ namespace onering.Database{
                 using (SqlCommand cmd = new SqlCommand(query, conn)) {
                     cmd.Parameters.AddWithValue("@portletinstanceid", pi.ID);
                     conn.Open();
-                    using (SqlDataReader r = cmd.ExecuteReader()) {
-                        while (r.Read()) {
+                    using (SqlDataReader reader = cmd.ExecuteReader()) {
+                        while (reader.Read()) {
                             ConfigFieldInstance cfi = new ConfigFieldInstance();
-                            cfi.ID = (int)r["ConfigFieldInstanceID"];
-                            if (r["ConfigFieldID"] != DBNull.Value) {
-                                cfi.ConfigField = ListConfigFields(new ConfigField{ ID = (int)r["ConfigFieldID"]})[0];
-                                cfi.ConfigFieldInstanceValue = (string)r["ConfigFieldInstanceValue"];
+                            cfi.ID = (int)reader["ConfigFieldInstanceID"];
+                            if (reader["ConfigFieldID"] != DBNull.Value) {
+                                cfi.ConfigField = ListConfigFields(new ConfigField{ ID = (int)reader["ConfigFieldID"]})[0];
+                                cfi.ConfigFieldInstanceValue = (string)reader["ConfigFieldInstanceValue"];
                             }
-                            if (r["ConfigFieldOptionID"] != DBNull.Value) {
-                                cfi.ConfigFieldOption = ListConfigFieldOptions(new ConfigFieldOption{ ID = (int) r["configFieldOptionID"]})[0];
+                            if (reader["ConfigFieldOptionID"] != DBNull.Value) {
+                                cfi.ConfigFieldOption = ListConfigFieldOptions(new ConfigFieldOption{ ID = (int) reader["configFieldOptionID"]})[0];
                             }
                             // Because PortletInstances have ConfigFieldInstances, a naive finding
                             // of these would lead to an infinite loop. For now, we'll just set the
                             // ID values and move on with our lives.
-                            cfi.PortletInstance = new PortletInstance{ ID = (int)r["PortletInstanceID"]};
+                            cfi.PortletInstance = new PortletInstance{ ID = (int)reader["PortletInstanceID"]};
                             insts.Add(cfi);
                         }
                     }
@@ -723,20 +711,5 @@ namespace onering.Database{
                 conn.Close();
             }
         }
-    }
-    public interface IOneRingDB {
-        void CreateOneRingUser(OneRingUser user);
-        List<OneRingUser> ListOneRingUsers(string graphid);
-        List<OneRingUser> ListBareOneRingUsers(OneRingUser user);
-        void CreatePortlet(Portlet portlet);
-        List<Portlet> ListPortlets();
-        List<Portlet> ListPortlets(string namePrefix);
-        void CreateConfigField(ConfigField cf, int portletId);
-        List<ConfigField> ListConfigFields(int portletId);
-        void CreateConfigFieldOption(ConfigFieldOption option, int configFieldId);
-        List<ConfigFieldOption> ListConfigFieldOptions(int configFieldId);
-        void CreatePortletInstance(PortletInstance inst);
-        List<PortletInstance> ListPortletInstances(OneRingUser user);
-        List<PortletInstance> ListPortletInstances(PortletInstance pi);
     }
 }
