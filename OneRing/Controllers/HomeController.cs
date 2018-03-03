@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Authorization;
@@ -19,19 +21,25 @@ namespace onering.Controllers
         private readonly IConfiguration _configuration;
         private readonly IHostingEnvironment _env;
         private readonly IGraphSdkHelper _graphSdkHelper;
+        private Database.IOneRingDB _db;
 
-
-        public HomeController(IConfiguration configuration, IHostingEnvironment hostingEnvironment, IGraphSdkHelper graphSdkHelper)
+        public HomeController(IConfiguration configuration, IHostingEnvironment hostingEnvironment, IGraphSdkHelper graphSdkHelper, Database.IOneRingDB db)
         {
             _configuration = configuration;
             _env = hostingEnvironment;
             _graphSdkHelper = graphSdkHelper;
+            _db = db;
         }
-        
+
         [Authorize]
         // Load user's profile.
         public async Task<IActionResult> Index(string email)
         {
+            // Check if the user exists in the database and if they don't, insert them into the database.
+            string id = this.User.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier").Value;
+            if (!this._db.ListOneRingUsers(id).Any()) {
+                this._db.CreateOneRingUser(new OneRingUser{ GraphID = id });
+            }
             // We're gonna throw some configs into the page for verification,
             // delete these lines in production
             var azureOptions = new Extensions.AzureAdOptions();
@@ -56,7 +64,7 @@ namespace onering.Controllers
                 ViewData["Picture"] = await GraphService.GetPictureBase64(graphClient, email, HttpContext);
             }
 
-            return View();
+            return View(this._db.ListPortletInstances(this._db.ListOneRingUsers(id)[0]));
         }
 
         [Authorize]

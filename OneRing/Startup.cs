@@ -105,7 +105,7 @@ namespace onering
                 new Portlet {
                     Name = "ExamplePortlet",
                     Description = "This is the example portlet.",
-                    Path = "/TodoPortlet/Index",
+                    Path = "/Todo/Index",
                     Icon = "https://placeimg.com/150/150/tech",
                     ConfigFields = new List<ConfigField>{
                         new ConfigField {

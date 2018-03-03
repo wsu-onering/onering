@@ -1,9 +1,25 @@
-﻿@{
+﻿@model List<onering.Models.PortletInstance>
+@{
     ViewData["Title"] = "Home Page";
 }
 
 <link  rel="stylesheet" href="~/css/home.css" />
 
+<div id="portlet-grid">
+@if (Model.Count < 1) {
+    <div id="abs-center">
+        <h2>No portlets have been added yet.</h2>
+        <h2>Add your own through the &quot;Add Portlet&quot; menu ↗</h2>
+    </div>
+} else {
+    @foreach (var inst in Model) {
+        <div class="col-md-4">
+            <iframe src="@inst.Portlet.Path" frameborder="1" scrolling="no"></iframe>
+        </div>
+    }
+}
+</div>
+@*
 <div class="row">
     <div class="col-md-4">
         <iframe src="/Test/Index" frameborder="1" scrolling="no"></iframe>
@@ -15,9 +31,24 @@
         <iframe src="/Todo/Index" frameborder="1"></iframe>
     </div>
 </div>
+*@
+
+
+<style type="text/css">
+#abs-center {
+    text-align: center;
+    position: relative;
+    top: 40vh;
+    transform: translateY(-50%);
+}
+#portlet-grid {
+    height: calc(100vh - 150px);
+}
+</style>
 
 
 <!-- <pre>
     @ViewData["Configvals"]
+    @Model
 </pre> -->
 
