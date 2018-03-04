@@ -31,13 +31,6 @@ namespace onering.Controllers
             return _db.ListPortlets();
         }
 
-        [Authorize]
-        public ActionResult LoadConfigSetting(string name)
-        {
-            string path = string.Format("~/Views/Portlets/Configs/{0}.cshtml", name);
-            return PartialView(path);
-        }
-
         // Creates a new portlet instance for a given user
         [HttpPost]
         public IActionResult PortletInstance()

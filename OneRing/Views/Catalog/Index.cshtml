@@ -5,6 +5,7 @@
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script src="~/js/catalog.js"></script>
+<link rel="stylesheet" href="~/css/catalog.css"/>
 
 <div>
     <h1>Portlet Catalog</h1>
@@ -46,25 +47,15 @@
                 let desc = document.createElement('p');
                 desc.innerHTML = config.description;
                 let config_item = document.createElement('div');
-                config_area.append(header, desc, config_item);
                 switch (config.id) {
                     case 1:         // Variable dropdown config 
-                        varDropdownConfig = config;
-                        config_item.id = "dropdown_config_area";
-                        $.get("/Catalog/LoadConfigSetting/?name=VariableDropdown").done((view) => {
-                            let dropdown_config_area = document.getElementById("dropdown_config_area");
-                            dropdown_config_area.innerHTML = view;
-                            startupVarDropdown();
-                        })
+                        startupVarDropdown(config, config_item);
                         break;
                     case 2:         // Free form input config
-                        config_item.id = "single_input_area";
-                        $.get("/Catalog/LoadConfigSetting/?name=SingleInput").done((view) => {
-                            let dropdown_config_area = document.getElementById("single_input_area");
-                            dropdown_config_area.innerHTML = view;
-                        })
+                        startupSingleInput(config, config_item);
                         break;
                 }
+                config_area.append(header, desc, config_item);
             }
             desc_area.append(config_area);
         }

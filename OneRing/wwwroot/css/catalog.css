@@ -1,2 +1,182 @@
-﻿body {
+﻿
+/*
+    Portlet Catalog CSS
+*/
+body {
+}
+
+
+
+/*
+    Configurable: VariableDropdown CSS
+*/
+/*.addItemButton {
+    background-color: #28c12f;
+    color: white;
+    margin-top: 18px;
+    padding: 8px 16px;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+    width: 90px;
+}
+
+    .addItemButton:hover, .addItemButton:focus {
+        background-color: #1ca822;
+    }
+
+.removeItemButton {
+    float: left;
+    background-color: #d9534f;
+    color: white;
+    margin-right: 18px;
+    padding: 8px 16px;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+    width: 90px;
+}
+
+    .removeItemButton:hover, .removeItemButton:focus {
+        background-color: #c9302c;
+    }
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f1f1f1;
+    min-width: 160px;
+    overflow: auto;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+    .dropdown-content a {
+        background-color: white;
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        font-size: 14px;
+        display: block;
+        cursor: pointer;
+    }
+
+.dropdown a:hover {
+    background-color: #ddd
+}
+
+.show {
+    display: block;
+}
+
+.addedDropItem {
+    padding-top: 10px;
+}
+
+    .addedDropItem h3 {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-top: 4px;
+        white-space: nowrap;
+        display: block;
+    }*/
+
+.add-config-button {
+    background-color: #28c12f;
+    color: white;
+    margin-top: 18px;
+    padding: 8px 16px;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+    width: 90px;
+}
+
+    .add-config-button:hover, .add-config-button:focus {
+        background-color: #1ca822;
+    }
+
+.remove-item-button {
+    float: left;
+    background-color: #d9534f;
+    color: white;
+    margin-right: 18px;
+    padding: 8px 16px;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+    width: 90px;
+}
+
+    .remove-item-button:hover, .remove-item-button:focus {
+        background-color: #c9302c;
+    }
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f1f1f1;
+    min-width: 160px;
+    overflow: auto;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+    .dropdown-content a {
+        background-color: white;
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        font-size: 14px;
+        display: block;
+        cursor: pointer;
+    }
+
+.dropdown a:hover {
+    background-color: #ddd
+}
+
+.show {
+    display: block;
+}
+
+.add-item-button {
+    padding-top: 10px;
+}
+
+    .add-item-button h3 {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-top: 4px;
+        white-space: nowrap;
+        display: block;
+    }
+
+
+
+
+/*
+    Configurable: SingleTextbox CSS 
+*/
+label {
+    display: inline-block;
+    text-align: left;
+    font-size: 22px;
+    font-weight: 500;
+    margin-right: 10px;
+}
+
+.config-input {
+    height: 34px;
+    font-size: 18px;
 }
