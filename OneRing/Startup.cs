@@ -123,7 +123,7 @@ namespace onering
                             }
                         },
                         new ConfigField {
-                            Name = "Freeform input field:",
+                            Name = "Configurable Input:",
                             Description = "As a user, you can input whatever your heart desires into here."
                         }
                     }

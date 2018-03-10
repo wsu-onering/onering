@@ -5,9 +5,11 @@
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script src="~/js/catalog.js"></script>
+<link rel="stylesheet" href="~/css/catalog.css"/>
 
 <div>
     <h1>Portlet Catalog</h1>
+
     <div class="row">
         <div class="col-md-6 portlet-list">
             @foreach (var portlet in Model) {
@@ -20,110 +22,13 @@
         <div class="col-md-6" id="portlet-description">
         </div>
     </div>
-<div style="display: flex; flex-direction: row-reverse;">
-    <button class="btn btn-danger btn-lg" onclick="javascript:window.location.href='/';">
-        Cancel
-    </button>
+
+    <div style="display: flex; flex-direction: row-reverse;">
+        <button id="add_portlet_btn" class="btn btn-success btn-lg btn-finished disabled" onclick="onCatalogAddClick()">
+            Add
+        </button>
+        <button class="btn btn-danger btn-lg btn-finished" onclick="onCatalogCancelClick()">
+            Cancel
+        </button>
+    </div>
 </div>
-</div>
-
-
-<script>
-    function makeClickFunc(portlet, desc_area) {
-        return function (){
-            console.log(portlet, desc_area);
-            desc_area.empty();
-            let header = document.createElement('h1');
-            header.innerHTML = portlet.name;
-            let desc = document.createElement('p');
-            desc.innerHTML = portlet.description;
-            desc_area.append(header, desc);
-
-            var config_area = document.createElement('div');
-            for (config of portlet.configFields) {
-                let header = document.createElement('h1');
-                header.innerHTML = config.name;
-                let desc = document.createElement('p');
-                desc.innerHTML = config.description;
-                let config_item = document.createElement('div');
-                config_area.append(header, desc, config_item);
-                switch (config.id) {
-                    case 1:         // Variable dropdown config 
-                        varDropdownConfig = config;
-                        config_item.id = "dropdown_config_area";
-                        $.get("/Catalog/LoadConfigSetting/?name=VariableDropdown").done((view) => {
-                            let dropdown_config_area = document.getElementById("dropdown_config_area");
-                            dropdown_config_area.innerHTML = view;
-                            startupVarDropdown();
-                        })
-                        break;
-                    case 2:         // Free form input config
-                        config_item.id = "single_input_area";
-                        $.get("/Catalog/LoadConfigSetting/?name=SingleInput").done((view) => {
-                            let dropdown_config_area = document.getElementById("single_input_area");
-                            dropdown_config_area.innerHTML = view;
-                        })
-                        break;
-                }
-            }
-            desc_area.append(config_area);
-        }
-    }
-
-    function attach_click_funcs() {
-        $.get("/Catalog/Portlet").done((data) =>{
-            let domPortlets = $(".portlet-list-item");
-            let portletdivs = {};
-            domPortlets.each((index, elem) =>{
-                let name = $(elem).find(".portlet-list-item-name").text();
-                portletdivs[name] = $(elem);
-            });
-            console.log(portletdivs);
-            console.log(domPortlets);
-            // Register a click event for each portlet
-            for (portlet of data) {
-                console.log(portlet);
-                let desc_area = $("#portlet-description");
-                let div = portletdivs[portlet.name];
-                div.click(makeClickFunc(portlet, desc_area));
-            }
-        });
-    }
-
-    $(attach_click_funcs);
-</script>
-
-<style type="text/css">
-    .portlet-list {
-        min-height: 70vh;
-        max-height: 75vh;
-        overflow-y: scroll;
-    }
-
-    .portlet-list-item {
-        border: 1px solid #ccc;
-        display: flex;
-        align-items: center;
-        margin: 8px;
-
-        cursor: pointer;
-
-        box-shadow: 2px 1px 2px rgba(0,0,0,0.15);
-        transition: box-shadow 0.1s ease-in-out;
-    }
-
-    .portlet-list-item:hover {
-        box-shadow: 2px 2px 4px rgba(0,128,255,0.2);
-    }
-
-    .portlet-list-item-icon {
-        height: 75px;
-        width: 75px;
-    }
-
-    .portlet-list-item-name {
-        font-size: 2.4rem;
-        font-weight: 700;
-        padding-left: 10vw;
-    }
-</style>

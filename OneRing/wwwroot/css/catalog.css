@@ -1,2 +1,128 @@
-﻿body {
+﻿
+/*
+    Portlet Catalog CSS
+*/
+body {
+}
+
+.portlet-list {
+    min-height: 70vh;
+    max-height: 75vh;
+    overflow-y: scroll;
+}
+
+.portlet-list-item {
+    border: 1px solid #ccc;
+    display: flex;
+    align-items: center;
+    margin: 8px;
+    cursor: pointer;
+    box-shadow: 2px 1px 2px rgba(0,0,0,0.15);
+    transition: box-shadow 0.1s ease-in-out;
+}
+
+    .portlet-list-item:hover {
+        box-shadow: 2px 2px 4px rgba(0,128,255,0.2);
+    }
+
+.portlet-list-item-icon {
+    height: 75px;
+    width: 75px;
+}
+
+.portlet-list-item-name {
+    font-size: 2.4rem;
+    font-weight: 700;
+    padding-left: 10vw;
+}
+
+.btn-finished {
+    margin: 5px;
+    width: 110px;
+}
+
+
+/*
+    Configurable: VariableDropdown CSS
+*/
+.add-config-button {
+    margin-top: 18px;
+    padding: 8px 16px;
+    cursor: pointer;
+    width: 110px;
+}
+
+.remove-item-button {
+    float: left;
+    margin-right: 18px;
+    padding: 8px 16px;
+    cursor: pointer;
+    width: 110px;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f1f1f1;
+    min-width: 160px;
+    overflow: auto;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+    .dropdown-content a {
+        background-color: white;
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        font-size: 14px;
+        display: block;
+        cursor: pointer;
+    }
+
+.dropdown a:hover {
+    background-color: #ddd
+}
+
+.show {
+    display: block;
+}
+
+.add-item-button {
+    padding-top: 10px;
+}
+
+    .add-item-button h3 {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-top: 4px;
+        white-space: nowrap;
+        display: block;
+    }
+
+
+
+
+
+
+
+/*
+    Configurable: SingleTextbox CSS 
+*/
+label {
+    display: inline-block;
+    text-align: left;
+    font-size: 22px;
+    font-weight: 500;
+    margin-right: 10px;
+}
+
+.config-input {
+    height: 34px;
+    font-size: 18px;
 }
