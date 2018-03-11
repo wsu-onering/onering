@@ -1,7 +1,30 @@
 ﻿iframe {
-    margin-top: 10px;
-    height: 340px;
+    /* margin-top: 10px; */
+    height: 100%;
     width: 100%;
-    border: solid;
-    border-color: black;
+    border: none;
+    /* border-color: black; */
+}
+
+#abs-center {
+    text-align: center;
+    position: relative;
+    top: 40vh;
+    transform: translateY(-50%);
+}
+#portlet-grid {
+    height: calc(100vh - 150px);
+}
+
+.portlet-heading {
+    background-color: lightgrey;
+    height: 2em;
+}
+.portlet-body {
+    /* background-color: cyan; */
+    height: calc(100% - 2em);
+}
+
+.grid-stack>.grid-stack-item>.grid-stack-item-content {
+    overflow-y: hidden;
 }
