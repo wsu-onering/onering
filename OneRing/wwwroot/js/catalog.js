@@ -4,8 +4,9 @@
 let portletSelected;
 
 function onCatalogAddClick() {
-    if (portletSelected == null)
+    if (portletSelected == null) {
         return;
+    }
 
     // Create PortletInstance from portlet
     let portletInstance = {
@@ -18,18 +19,22 @@ function onCatalogAddClick() {
     };
 
     // Grab all configurations
-    for (config of portletSelected.configFields) {
-        switch (config.id) {
+    let configs = portletSelected.configFields;
+    for (let i = 0; i < configs.length; i += 1) {
+        switch (configs[i].id) {
             // Variable dropdown config 
-            case 1:         
-                for (option of varDropdownsAdded) {
-                    portletInstance.ConfigFieldInstances.push(createConfigInstance(option, option.name));
+            case 1:
+                for (let i = 0; i < varDropdownsAdded.length; i += 1) {
+                    let option = varDropdownsAdded[i];
+                    let configInstance = createConfigInstance(option, option.name);
+                    portletInstance.ConfigFieldInstances.push(configInstance);
                 }
                 break;
             // Free form input config
             case 2:         
                 let config_input = document.getElementById("single_config_input");
-                portletInstance.ConfigFieldInstances.push(createConfigInstance(singleInputConfig, config_input.value));
+                let configInstance = createConfigInstance(singleInputConfig, config_input.value);
+                portletInstance.ConfigFieldInstances.push(configInstance);
                 break;
         }
     }
@@ -76,7 +81,9 @@ function onPortletSelected(portlet, desc_area) {
         desc.innerHTML = portlet.description;
         desc_area.append(header, desc);
         var config_area = document.createElement('div');
-        for (config of portlet.configFields) {
+
+        for (let i = 0; i < portlet.configFields.length; i += 1) {
+            let config = portlet.configFields[i];
             let header = document.createElement('h1');
             header.innerHTML = config.name;
             let desc = document.createElement('p');

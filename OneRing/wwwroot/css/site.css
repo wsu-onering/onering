@@ -37,12 +37,51 @@ button {
     }
 }
 
-.navbar-brand {
-    font-size: 30px;
+.navbar-nav {
+    margin: 0px;
 }
+
+.navbar-header {
+    float: none;
+}
+
+.navbar-right {
+    margin-top: 4px;
+    float: right;
+}
+
+.navbar {
+    min-height: 70px;
+}
+
+
+.dropdown .dropdown-toggle {
+    padding: 0px;
+    width: 45px;
+    height: 60px;
+    float: right;
+}
+
+.navbar-brand {
+    font-size: 32px;
+    padding-top: 10px;
+}
+
+    .navbar-brand > img {
+        width: 56px;
+        height: 56px;
+        display: inline-block;
+        margin-right: -8px;
+    }
 
 .navbar-inverse .navbar-brand {
     color: #dddddd;
+}
+
+.glyphicon {
+    top: 14px;
+    left: 12px;
+    font-size: 25px;
 }
 
 
