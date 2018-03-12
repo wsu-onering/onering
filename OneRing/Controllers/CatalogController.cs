@@ -36,18 +36,26 @@ namespace onering.Controllers
         [HttpPost]
         public IActionResult PortletInstance(PortletInstance pi)
         {
-            if (pi == null || pi.ConfigFieldInstances == null)
+            if (pi == null)
                 return null;
 
+            // Get user
             string id = User.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier").Value;
             OneRingUser user = _db.ListOneRingUsers(id)[0];
 
-            foreach (ConfigFieldInstance configInstance in pi.ConfigFieldInstances) {
-                if (configInstance.PortletInstance == null)
-                    configInstance.PortletInstance = pi;
+            // Setup configurations
+            if (pi.ConfigFieldInstances != null) {
+                foreach (ConfigFieldInstance configInstance in pi.ConfigFieldInstances) {
+                    if (configInstance.PortletInstance == null)
+                        configInstance.PortletInstance = pi;
+                }
             }
+            // Set user
             pi.User = user;
+
+            // Create portlet instance
             _db.CreatePortletInstance(pi);
+
             return Json(new Dictionary<int, int>());
         }
     }

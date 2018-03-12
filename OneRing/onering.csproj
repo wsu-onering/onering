@@ -26,6 +26,7 @@
     <Folder Include="Data\" />
     <Folder Include="Models\" />
     <Folder Include="Views\Shared\" />
+    <Folder Include="wwwroot\images\portlet\warpspeed\" />
     <Folder Include="wwwroot\lib\p5\" />
   </ItemGroup>
 

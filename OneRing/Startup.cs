@@ -104,6 +104,12 @@ namespace onering
             Debug.Print("We've ensured that the database tables do exist.");
             List<Portlet> testPortlets = new List<Portlet> {
                 new Portlet {
+                    Name = "Warp Speed",
+                    Description = "Look out the window of your space ship as you warp through the cosmos.",
+                    Path = "/Test/Index",
+                    Icon = "/images/portlet/warpspeed/icon.png"
+                },
+                new Portlet {
                     Name = "Todo Tracker",
                     Description = "The Todo Tracker is a portlet that will pull your tasks from different sites and conjugate them into one coherent list. Navigating to the Todo task and completing that task will update the Todo Tracker automatically.",
                     Path = "/ToDo/Index",
