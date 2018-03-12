@@ -12,9 +12,9 @@
         <h2>Add your own through the &quot;Add Portlet&quot; menu ↗</h2>
     </div>
 } else {
-    @foreach (var inst in Model) {
+    @foreach (PortletInstance inst in Model) {
         <div class="col-md-4">
-            <iframe src="@inst.Portlet.Path" frameborder="1" scrolling="no"></iframe>
+            <iframe src="@(inst.Portlet.Path + "/?id=" + inst.ID)" frameborder="1" scrolling="no"></iframe>
         </div>
     }
 }

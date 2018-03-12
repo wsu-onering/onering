@@ -24,6 +24,8 @@ namespace onering.Database
         void CreatePortletInstance(PortletInstance inst);
         List<PortletInstance> ListPortletInstances(OneRingUser user);
         List<PortletInstance> ListPortletInstances(PortletInstance pi);
+        List<ConfigFieldInstance> ListConfigFieldInstances(PortletInstance portletInstance);
+        List<ConfigFieldInstance> ListConfigFieldInstances(int portletID);
     }
 
 
@@ -40,19 +42,22 @@ namespace onering.Database
         private SqlConnection _conn;
         private IConfiguration _configuration;
 
-        public Database(IConfiguration configuration){
+        public Database(IConfiguration configuration)
+        {
             _configuration = configuration;
             _connectionString = _configuration.GetSection("Databases")["OneRing"];
             _conn = new SqlConnection(_connectionString);
         }
 
-        private void Open() {
+        private void Open()
+        {
             if (_conn.State != System.Data.ConnectionState.Open) {
                 _conn.Open();
             }
         }
 
-        private void Close() {
+        private void Close()
+        {
             if (_conn.State != System.Data.ConnectionState.Closed) {
                 _conn.Close();
             }
@@ -62,7 +67,8 @@ namespace onering.Database
         /// CreatePortlet creates a new portlet in the database with the same data as the provided portlet.
         /// </summary>
         /// <param name="portlet">The portlet inserted into the database will have all the values of the input object, except for the ID field. The ID field on the input portlet is ignored.</param>
-        public void CreatePortlet(Portlet portlet) {
+        public void CreatePortlet(Portlet portlet)
+        {
             string query = @"INSERT INTO Portlet (
                 PortletName,
                 PortletDescription,
@@ -95,7 +101,8 @@ namespace onering.Database
         /// ListPortlet returns a list of all portlets.
         /// </summary>
         /// <returns>A list of all portlets. This list is not garuanteed to be sorted in any way.</returns>
-        public List<Portlet> ListPortlets() {
+        public List<Portlet> ListPortlets()
+        {
             List<Portlet> portlets = new List<Portlet>();
 
             string query = @"SELECT * FROM Portlet";
@@ -119,7 +126,8 @@ namespace onering.Database
         /// </summary>
         /// <param name="namePrefix">The prefix to be searched for in the names of portlets.</param>
         /// <returns></returns>
-        public List<Portlet> ListPortlets(string namePrefix) {
+        public List<Portlet> ListPortlets(string namePrefix)
+        {
             List<Portlet> portlets = new List<Portlet>();
 
             string query = @"SELECT * FROM Portlet WHERE PortletName LIKE '%' + @namePrefix + '%'";
@@ -145,7 +153,8 @@ namespace onering.Database
         /// </summary>
         /// <param name="id">The id of the portlet to return.</param>
         /// <returns></returns>
-        public List<Portlet> ListPortlets(int id) {
+        public List<Portlet> ListPortlets(int id)
+        {
             List<Portlet> portlets = new List<Portlet>();
 
             string query = @"SELECT * FROM Portlet WHERE PortletID=@portletid";
@@ -166,13 +175,14 @@ namespace onering.Database
             return portlets;
         }
 
-        public void CreateOneRingUser(OneRingUser user) {
+        public void CreateOneRingUser(OneRingUser user)
+        {
             string query = @"INSERT INTO OneRingUser (
                 GraphID
             ) output INSERTED.UserID VALUES (
                 @graphid
             )";
-
+            List<Portlet> allPortlets = ListPortlets();
             using (SqlConnection conn = new SqlConnection(this._connectionString)) {
                 using (SqlCommand cmd = new SqlCommand(query, conn)) {
                     cmd.Parameters.AddWithValue("@graphid", user.GraphID);
@@ -180,9 +190,10 @@ namespace onering.Database
                     int userID = (int)cmd.ExecuteScalar();
                     if (user.PortletInstances != null) {
                         foreach (PortletInstance pi in user.PortletInstances) {
-                            pi.User = new OneRingUser {ID = userID};
-                            pi.Portlet = ListPortlets(pi.Portlet.Name)[0];
-                            CreatePortletInstance(pi);
+                            pi.User = new OneRingUser() { ID = userID };
+                            pi.Portlet = allPortlets.Find(x => x.Name == pi.Portlet.Name);
+                            if (pi.Portlet != null)
+                                CreatePortletInstance(pi);
                         }
                     }
                 }
@@ -196,7 +207,8 @@ namespace onering.Database
         /// </summary>
         /// <param name="graphid">The GraphID to search by.</param>
         /// <returns></returns>
-        public List<OneRingUser> ListOneRingUsers(string graphid) {
+        public List<OneRingUser> ListOneRingUsers(string graphid)
+        {
             List<OneRingUser> users = new List<OneRingUser>();
 
             string query = @"SELECT * FROM OneRingUser WHERE GraphID=@graphid";
@@ -219,7 +231,8 @@ namespace onering.Database
             return users;
         }
 
-        public List<OneRingUser> ListBareOneRingUsers(OneRingUser user) {
+        public List<OneRingUser> ListBareOneRingUsers(OneRingUser user)
+        {
             List<OneRingUser> users = new List<OneRingUser>();
 
             string query = @"SELECT * FROM OneRingUser WHERE UserID=@userid";
@@ -246,7 +259,8 @@ namespace onering.Database
         /// </summary>
         /// <param name="cf">The contents of the configfield. The ID field and the PortletID field of this object are ignored.</param>
         /// <param name="portletId">The ID of the portlet to associate this ConfigField with.</param>
-        public void CreateConfigField(ConfigField cf, int portletId) {
+        public void CreateConfigField(ConfigField cf, int portletId)
+        {
             string query = @"INSERT INTO ConfigField (
                 ConfigFieldName,
                 ConfigFieldDescription,
@@ -258,15 +272,19 @@ namespace onering.Database
             )";
             // Because this query may be run while another query is being run using the class-wide
             // _conn, we create out own connection here.
-            using (SqlConnection conn = new SqlConnection(this._connectionString)) {
-                using (SqlCommand cmd = new SqlCommand(query, conn)) {
+            using (SqlConnection conn = new SqlConnection(this._connectionString))
+            {
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
                     cmd.Parameters.AddWithValue("@name", cf.Name);
                     cmd.Parameters.AddWithValue("@description", cf.Description);
                     cmd.Parameters.AddWithValue("@portletid", portletId);
                     conn.Open();
-                    int configFieldId = (int) cmd.ExecuteScalar();
-                    if (cf.ConfigFieldOptions != null) {
-                        foreach (ConfigFieldOption option in cf.ConfigFieldOptions) {
+                    int configFieldId = (int)cmd.ExecuteScalar();
+                    if (cf.ConfigFieldOptions != null)
+                    {
+                        foreach (ConfigFieldOption option in cf.ConfigFieldOptions)
+                        {
                             CreateConfigFieldOption(option, configFieldId);
                         }
                     }
@@ -274,7 +292,8 @@ namespace onering.Database
             }
         }
         // Retrieve all the configfield(s) assocaited with a given portlet.
-        public  List<ConfigField> ListConfigFields(int portletId) {
+        public  List<ConfigField> ListConfigFields(int portletId)
+        {
             List<ConfigField> fields = new List<ConfigField>();
             string query = @"SELECT * FROM ConfigField WHERE PortletID=@portletid";
             using (SqlConnection conn = new SqlConnection(this._connectionString)) {
@@ -302,7 +321,8 @@ namespace onering.Database
         /// <returns>Returns a list of all ConfigFields with ID matching the ID of input cf. The
         /// returned list SHOULD always be of length 1 or 0, but this method makes no
         /// guarantees.</returns>
-        public List<ConfigField> ListConfigFields(ConfigField inptCF) {
+        public List<ConfigField> ListConfigFields(ConfigField inptCF)
+        {
             List<ConfigField> fields = new List<ConfigField>();
             string query = @"SELECT * FROM ConfigField WHERE ConfigFieldID=@configfieldid";
             using (SqlConnection conn = new SqlConnection(this._connectionString)) {
@@ -327,7 +347,8 @@ namespace onering.Database
         /// </summary>
         /// <param name="option">The ConfigFieldOption object to create in the database. The ConfigFieldID field is ignored. Pass that as the other argument to this method.</param>
         /// <param name="configFieldId">The ID of the ConfigField to associate this ConfigFieldOption with.</param>
-        public void CreateConfigFieldOption(ConfigFieldOption option, int configFieldId) {
+        public void CreateConfigFieldOption(ConfigFieldOption option, int configFieldId)
+        {
             string query = @"INSERT INTO ConfigFieldOption (
                 ConfigFieldID,
                 ConfigFieldOptionName,
@@ -348,7 +369,8 @@ namespace onering.Database
             }
         }
 
-        public List<ConfigFieldOption> ListConfigFieldOptions(int configFieldId) {
+        public List<ConfigFieldOption> ListConfigFieldOptions(int configFieldId)
+        {
             List<ConfigFieldOption> options = new List<ConfigFieldOption>();
             string query = @"SELECT * FROM ConfigFieldOption WHERE ConfigFieldID=@configfieldid";
             using (SqlConnection conn = new SqlConnection(this._connectionString)) {
@@ -378,7 +400,8 @@ namespace onering.Database
         /// <returns>A list of all ConfigFieldOptions in the Database with an ID matching the ID of
         /// the input ConfigFieldOption. While the length of the returned list should be either 0 or
         /// 1, this method provides no garuantees about the size of the returned list.</returns>
-        public List<ConfigFieldOption> ListConfigFieldOptions(ConfigFieldOption cfo) {
+        public List<ConfigFieldOption> ListConfigFieldOptions(ConfigFieldOption cfo)
+        {
             List<ConfigFieldOption> options = new List<ConfigFieldOption>();
             string query = @"SELECT * FROM ConfigFieldOption WHERE ConfigFieldOptionID=@configfieldoptionid";
             using (SqlConnection conn = new SqlConnection(this._connectionString)) {
@@ -395,7 +418,8 @@ namespace onering.Database
             return options;
         }
 
-        public void CreatePortletInstance(PortletInstance inst) {
+        public void CreatePortletInstance(PortletInstance inst)
+        {
             string query = @"INSERT INTO PortletInstance (
                 PortletID,
                 UserID,
@@ -438,7 +462,8 @@ namespace onering.Database
 
         // Finds all the PortletInstances which point to the user with the ID matching the ID of the
         // user object provided to this function.
-        public List<PortletInstance> ListPortletInstances(OneRingUser user) {
+        public List<PortletInstance> ListPortletInstances(OneRingUser user)
+        {
             List<PortletInstance> insts = new List<PortletInstance>();
             string query = @"SELECT * FROM PortletInstance WHERE UserID=@userid";
             using (SqlConnection conn = new SqlConnection(this._connectionString)) {
@@ -476,7 +501,8 @@ namespace onering.Database
         /// <returns>Returns a list of all PortletInstances with the ID of the input parameter "pi".
         /// The returned list *should* be of either length 0 or 1, but this method makes no
         /// guarantees about the length of the returned list.</returns>
-        public List<PortletInstance> ListPortletInstances(PortletInstance pi) {
+        public List<PortletInstance> ListPortletInstances(PortletInstance pi)
+        {
             List<PortletInstance> insts = new List<PortletInstance>();
             string query = @"SELECT * FROM PortletInstance WHERE PortletInstanceID=@portletinstanceid";
             using (SqlConnection conn = new SqlConnection(this._connectionString)) {
@@ -508,7 +534,8 @@ namespace onering.Database
         // ConfigFieldInstance must be populated with a valid object. The fields ConfigField,
         // ConfigFieldInstanceValue, and ConfigFieldOptionID may be null based on the conditions
         // described in the ConfigFieldInstance model.
-        public void CreateConfigFieldInstance(ConfigFieldInstance inst) {
+        public void CreateConfigFieldInstance(ConfigFieldInstance inst)
+        {
             string query = @"INSERT INTO ConfigFieldInstance (
                 ConfigFieldID,
                 ConfigFieldInstanceValue,
@@ -552,41 +579,49 @@ namespace onering.Database
             }
         }
 
-        public List<ConfigFieldInstance> ListConfigFieldInstances(PortletInstance pi) {
-            List<ConfigFieldInstance> insts = new List<ConfigFieldInstance>();
-            string query = @"SELECT * FROM ConfigFieldInstance WHERE PortletInstanceID=@portletinstanceid";
-            using (SqlConnection conn = new SqlConnection(this._connectionString)) {
+        public List<ConfigFieldInstance> ListConfigFieldInstances(PortletInstance portletInstance)
+        {
+            return ListConfigFieldInstances(portletInstance.ID);
+        }
+
+        public List<ConfigFieldInstance> ListConfigFieldInstances(int portletID)
+        {
+            List<ConfigFieldInstance> configInstances = new List<ConfigFieldInstance>();
+            string query = string.Format("SELECT * FROM ConfigFieldInstance WHERE PortletInstanceID={0}", portletID);
+            using (SqlConnection conn = new SqlConnection(_connectionString)) {
                 using (SqlCommand cmd = new SqlCommand(query, conn)) {
-                    cmd.Parameters.AddWithValue("@portletinstanceid", pi.ID);
                     conn.Open();
                     using (SqlDataReader reader = cmd.ExecuteReader()) {
                         while (reader.Read()) {
-                            ConfigFieldInstance cfi = new ConfigFieldInstance();
-                            cfi.ID = (int)reader["ConfigFieldInstanceID"];
+                            ConfigFieldInstance configInstance = new ConfigFieldInstance();
+                            configInstance.ID = (int)reader["ConfigFieldInstanceID"];
+
                             if (reader["ConfigFieldID"] != DBNull.Value) {
-                                cfi.ConfigField = ListConfigFields(new ConfigField{ ID = (int)reader["ConfigFieldID"]})[0];
-                                cfi.ConfigFieldInstanceValue = (string)reader["ConfigFieldInstanceValue"];
+                                configInstance.ConfigField = ListConfigFields(new ConfigField { ID = (int)reader["ConfigFieldID"] })[0];
+                                configInstance.ConfigFieldInstanceValue = (string)reader["ConfigFieldInstanceValue"];
                             }
-                            if (reader["ConfigFieldOptionID"] != DBNull.Value) {
-                                cfi.ConfigFieldOption = ListConfigFieldOptions(new ConfigFieldOption{ ID = (int) reader["configFieldOptionID"]})[0];
-                            }
+
+                            if (reader["ConfigFieldOptionID"] != DBNull.Value) 
+                                configInstance.ConfigFieldOption = ListConfigFieldOptions(new ConfigFieldOption { ID = (int)reader["configFieldOptionID"] })[0];
+
                             // Because PortletInstances have ConfigFieldInstances, a naive finding
                             // of these would lead to an infinite loop. For now, we'll just set the
                             // ID values and move on with our lives.
-                            cfi.PortletInstance = new PortletInstance{ ID = (int)reader["PortletInstanceID"]};
-                            insts.Add(cfi);
+                            configInstance.PortletInstance = new PortletInstance { ID = (int)reader["PortletInstanceID"] };
+                            configInstances.Add(configInstance);
                         }
                     }
                 }
             }
-            return insts;
+            return configInstances;
         }
 
         /// <summary>
         /// EnsureTablesCreated statically attempts to ensure that all the necessary database tables exist within the Database. If the tables do not exist, then the necessary SQL commands are run to create those tables. If the tables do exist, then EnsureTablesCreated does nothing.
         /// </summary>
         /// <param name="connectionString">The full connection string used to connect to the database. No attempts are made to derive the connection string from implicit sources (e.g. environment variables), meaning this parameter is required. </param>
-        public static void EnsureTablesCreated(string connectionString) {
+        public static void EnsureTablesCreated(string connectionString)
+        {
             using (SqlConnection conn = new SqlConnection(connectionString)) {
                 conn.Open();
 

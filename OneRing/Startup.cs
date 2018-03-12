@@ -92,24 +92,51 @@ namespace onering
 
         // Configures the various databses we're tasked with. If we're in Development mode, then we
         // populate those databases with some example values.
-        private void ConfigureDatabase(IHostingEnvironment env) {
+        private void ConfigureDatabase(IHostingEnvironment env)
+        {
             Database.Database.EnsureTablesCreated(this.Configuration.GetSection("Databases")["OneRing"]);
             Database.Database db = new Database.Database(this.Configuration);
             InitializePortlets(db);
 
-            if (!env.IsDevelopment()) {
+            if (!env.IsDevelopment())
                 return;
-            }
+
             Debug.Print("We've ensured that the database tables do exist.");
             List<Portlet> testPortlets = new List<Portlet> {
                 new Portlet {
-                    Name = "ExamplePortlet",
-                    Description = "This is the example portlet.",
-                    Path = "/Todo/Index",
+                    Name = "Todo Tracker",
+                    Description = "The Todo Tracker is a portlet that will pull your tasks from different sites and conjugate them into one coherent list. Navigating to the Todo task and completing that task will update the Todo Tracker automatically.",
+                    Path = "/ToDo/Index",
+                    Icon = "/images/portlet/todo/icon.png",
+                    ConfigFields = new List<ConfigField>{
+                        new ConfigField {
+                            Name = "Task Sources",
+                            Description = "Below is an area to configure which sources the Todo Tracker will grab from to display inside the portlet.",
+                            ConfigFieldOptions = new List<ConfigFieldOption> {
+                                new ConfigFieldOption{
+                                    Name = "English Task Site",
+                                    Value = "http://todotestsite.azurewebsites.net/api/values/"
+                                },
+                                new ConfigFieldOption{
+                                    Name = "Foreign Task Site",
+                                    Value = "http://todotestsite2.azurewebsites.net/api/values/"
+                                },
+                            }
+                        }
+                    }
+                },
+                new Portlet {
+                    Name = "ExtraCoolPortlet",
+                    Description = "An extra cool portlet.",
+                    Path = "",
                     Icon = "https://placeimg.com/150/150/tech",
                     ConfigFields = new List<ConfigField>{
                         new ConfigField {
-                            Name = "The options available:",
+                            Name = "Single Input",
+                            Description = "As a user, you can input whatever your heart desires into here."
+                        },
+                        new ConfigField {
+                            Name = "Multiple Dropdown",
                             Description = "Indeed this is a field, with some options for things you can have.",
                             ConfigFieldOptions = new List<ConfigFieldOption> {
                                 new ConfigFieldOption{
@@ -121,18 +148,8 @@ namespace onering
                                     Value = "#0000FF"
                                 },
                             }
-                        },
-                        new ConfigField {
-                            Name = "Configurable Input:",
-                            Description = "As a user, you can input whatever your heart desires into here."
                         }
                     }
-                },
-                new Portlet {
-                    Name = "ExtraCoolPortlet",
-                    Description = "An extra cool portlet.",
-                    Path = "",
-                    Icon = "https://placeimg.com/150/150/tech",
                 },
                 new Portlet {
                     Name = "NotAsCoolPortlet",
@@ -141,10 +158,12 @@ namespace onering
                     Icon = "https://placeimg.com/150/150/tech",
                 }
             };
-            foreach (Portlet p in testPortlets) {
-                if (!db.ListPortlets(p.Name).Any()) {
-                    db.CreatePortlet(p);
-                }
+
+            List<Portlet> allPortlets = db.ListPortlets();
+            foreach (Portlet portlet in testPortlets) {
+                if (allPortlets.Exists(x => x.Name == portlet.Name))
+                    continue;
+                db.CreatePortlet(portlet);
             }
 
             List<OneRingUser> testUsers = new List<OneRingUser> {

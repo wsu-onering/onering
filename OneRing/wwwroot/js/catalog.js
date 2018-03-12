@@ -26,14 +26,19 @@ function onCatalogAddClick() {
             case 1:
                 for (let i = 0; i < varDropdownsAdded.length; i += 1) {
                     let option = varDropdownsAdded[i];
-                    let configInstance = createConfigInstance(option, option.name);
+                    let configInstance = {
+                        ConfigFieldOption: option
+                    };
                     portletInstance.ConfigFieldInstances.push(configInstance);
                 }
                 break;
             // Free form input config
             case 2:         
                 let config_input = document.getElementById("single_config_input");
-                let configInstance = createConfigInstance(singleInputConfig, config_input.value);
+                let configInstance = {
+                    ConfigField: singleInputConfig,
+                    ConfigFieldInstanceValue: config_input.value
+                };
                 portletInstance.ConfigFieldInstances.push(configInstance);
                 break;
         }
@@ -49,13 +54,6 @@ function onCatalogAddClick() {
 
 function onCatalogCancelClick() {
     window.location.href = "/";
-}
-
-function createConfigInstance(config, value) {
-    return {
-        ConfigField: config,
-        ConfigFieldInstanceValue: value
-    }
 }
 
 function onPortletSelected(portlet, desc_area) {
@@ -147,18 +145,22 @@ function startupVarDropdown(config, config_area) {
     // Create html inside config_area
     let added_configs_area = document.createElement('div');
     added_configs_area.id = "added_configs_area";
+    added_configs_area.className = "row";
+    let dropdown_area = document.createElement('div');
+    dropdown_area.className = "row";
     let dropdown_button = document.createElement('button');
     dropdown_button.id = "dropdown_button";
     dropdown_button.className = "add-config-button btn btn-success btn-lg";
     dropdown_button.onclick = onDropdownClick;
     dropdown_button.innerHTML = "Add";
+    dropdown_area.append(dropdown_button);
     let dropdown_item_selection = document.createElement('div');
     dropdown_item_selection.id = "dropdown_item_selection";
     dropdown_item_selection.className = "dropdown-content";
     for (option of varDropdownConfig.configFieldOptions) {
         addDropdownOption(dropdown_item_selection, option);
     }
-    config_area.append(added_configs_area, dropdown_button, dropdown_item_selection);
+    config_area.append(added_configs_area, dropdown_area, dropdown_item_selection);
 }
 
 function addDropdownOption(dropdown, option) {
@@ -223,6 +225,8 @@ function onDropdownClick() {
 window.onclick = function (event) {
     if (!event.target.matches('.add-config-button')) {
         let dropdown_content = document.getElementById("dropdown_item_selection");
+        if (dropdown_content == null)
+            return;
         if (dropdown_content.classList.contains('show'))
             dropdown_content.classList.remove('show');
     }
