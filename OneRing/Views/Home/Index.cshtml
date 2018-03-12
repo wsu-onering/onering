@@ -3,49 +3,36 @@
     ViewData["Title"] = "Home Page";
 }
 
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/gridstack.js/0.3.0/gridstack.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/0.3.0/gridstack-extra.css" />
 <link  rel="stylesheet" href="~/css/home.css" />
 
-<div id="portlet-grid">
+
+<div id="portlet-grid" class="grid-stack">
 @if (Model.Count < 1) {
     <div id="abs-center">
         <h2>No portlets have been added yet.</h2>
-        <h2>Add your own through the &quot;Add Portlet&quot; menu ↗</h2>
+        <h2>Add your own through the &quot;Add Portlet&quot; menu (&#x22EE;)</h2>
     </div>
 } else {
     @foreach (PortletInstance inst in Model) {
-        <div class="col-md-4">
-            <iframe src="@(inst.Portlet.Path + "/?id=" + inst.ID)" frameborder="1" scrolling="no"></iframe>
+        <div class="grid-stack-item"
+            data-gs-x="@inst.XPos" data-gs-y="@inst.YPos"
+            data-gs-width="@inst.Width" data-gs-height="@(inst.Height*3)"
+            data-gs-min-width="2" data-gs-min-height="3">
+            <div class="grid-stack-item-content clearfix">
+                <div class="portlet-heading clearfix"></div>
+                <div class="portlet-body">
+                    <iframe src="@(inst.Portlet.Path + "/?id=" + inst.ID)" frameborder="1" scrolling="no"></iframe>
+                </div>
+            </div>
         </div>
     }
 }
 </div>
-@*
-<div class="row">
-    <div class="col-md-4">
-        <iframe src="/Test/Index" frameborder="1" scrolling="no"></iframe>
-    </div>
-    <div class="col-md-4">
-        <iframe src="/Todo/Index" frameborder="1"></iframe>
-    </div>
-    <div class="col-md-4">
-        <iframe src="/Todo/Index" frameborder="1"></iframe>
-    </div>
-</div>
-*@
 
-
-<style type="text/css">
-#abs-center {
-    text-align: center;
-    position: relative;
-    top: 40vh;
-    transform: translateY(-50%);
-}
-#portlet-grid {
-    height: calc(100vh - 150px);
-}
-</style>
-
+<script data-main="js/home" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.js"></script>
 
 <!-- <pre>
     @ViewData["Configvals"]
