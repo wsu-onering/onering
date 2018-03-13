@@ -3,6 +3,11 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="wwwroot\css\site.css" />
+    <Content Remove="wwwroot\css\site.min.css" />
+  </ItemGroup>
   
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.0" />
@@ -21,7 +26,7 @@
     <Folder Include="Data\" />
     <Folder Include="Models\" />
     <Folder Include="Views\Shared\" />
-    <Folder Include="wwwroot\images\" />
+    <Folder Include="wwwroot\images\portlet\warpspeed\" />
     <Folder Include="wwwroot\lib\p5\" />
   </ItemGroup>
 

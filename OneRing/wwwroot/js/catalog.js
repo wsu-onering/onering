@@ -4,32 +4,42 @@
 let portletSelected;
 
 function onCatalogAddClick() {
-    if (portletSelected == null)
+    if (portletSelected == null) {
         return;
+    }
 
     // Create PortletInstance from portlet
     let portletInstance = {
         Portlet: portletSelected,
         ConfigFieldInstances: [],
-        Height: 1,
+        Height: 2,
         Width: 1,
         XPos: 0,
         YPos: 0
     };
 
     // Grab all configurations
-    for (config of portletSelected.configFields) {
-        switch (config.id) {
+    let configs = portletSelected.configFields;
+    for (let i = 0; i < configs.length; i += 1) {
+        switch (configs[i].id) {
             // Variable dropdown config 
-            case 1:         
-                for (option of varDropdownsAdded) {
-                    portletInstance.ConfigFieldInstances.push(createConfigInstance(option, option.name));
+            case 1:
+                for (let i = 0; i < varDropdownsAdded.length; i += 1) {
+                    let option = varDropdownsAdded[i];
+                    let configInstance = {
+                        ConfigFieldOption: option
+                    };
+                    portletInstance.ConfigFieldInstances.push(configInstance);
                 }
                 break;
             // Free form input config
             case 2:         
                 let config_input = document.getElementById("single_config_input");
-                portletInstance.ConfigFieldInstances.push(createConfigInstance(singleInputConfig, config_input.value));
+                let configInstance = {
+                    ConfigField: singleInputConfig,
+                    ConfigFieldInstanceValue: config_input.value
+                };
+                portletInstance.ConfigFieldInstances.push(configInstance);
                 break;
         }
     }
@@ -44,13 +54,6 @@ function onCatalogAddClick() {
 
 function onCatalogCancelClick() {
     window.location.href = "/";
-}
-
-function createConfigInstance(config, value) {
-    return {
-        ConfigField: config,
-        ConfigFieldInstanceValue: value
-    }
 }
 
 function onPortletSelected(portlet, desc_area) {
@@ -76,7 +79,9 @@ function onPortletSelected(portlet, desc_area) {
         desc.innerHTML = portlet.description;
         desc_area.append(header, desc);
         var config_area = document.createElement('div');
-        for (config of portlet.configFields) {
+
+        for (let i = 0; i < portlet.configFields.length; i += 1) {
+            let config = portlet.configFields[i];
             let header = document.createElement('h1');
             header.innerHTML = config.name;
             let desc = document.createElement('p');
@@ -140,18 +145,22 @@ function startupVarDropdown(config, config_area) {
     // Create html inside config_area
     let added_configs_area = document.createElement('div');
     added_configs_area.id = "added_configs_area";
+    added_configs_area.className = "row";
+    let dropdown_area = document.createElement('div');
+    dropdown_area.className = "row";
     let dropdown_button = document.createElement('button');
     dropdown_button.id = "dropdown_button";
     dropdown_button.className = "add-config-button btn btn-success btn-lg";
     dropdown_button.onclick = onDropdownClick;
     dropdown_button.innerHTML = "Add";
+    dropdown_area.append(dropdown_button);
     let dropdown_item_selection = document.createElement('div');
     dropdown_item_selection.id = "dropdown_item_selection";
     dropdown_item_selection.className = "dropdown-content";
     for (option of varDropdownConfig.configFieldOptions) {
         addDropdownOption(dropdown_item_selection, option);
     }
-    config_area.append(added_configs_area, dropdown_button, dropdown_item_selection);
+    config_area.append(added_configs_area, dropdown_area, dropdown_item_selection);
 }
 
 function addDropdownOption(dropdown, option) {
@@ -216,6 +225,8 @@ function onDropdownClick() {
 window.onclick = function (event) {
     if (!event.target.matches('.add-config-button')) {
         let dropdown_content = document.getElementById("dropdown_item_selection");
+        if (dropdown_content == null)
+            return;
         if (dropdown_content.classList.contains('show'))
             dropdown_content.classList.remove('show');
     }

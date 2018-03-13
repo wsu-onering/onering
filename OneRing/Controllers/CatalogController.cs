@@ -34,18 +34,28 @@ namespace onering.Controllers
         // Creates a new portlet instance for a given user
         [Authorize]
         [HttpPost]
-        public IActionResult PortletInstance(PortletInstance pi) {
-            string id = this.User.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier").Value;
+        public IActionResult PortletInstance(PortletInstance pi)
+        {
+            if (pi == null)
+                return null;
+
+            // Get user
+            string id = User.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier").Value;
             OneRingUser user = _db.ListOneRingUsers(id)[0];
-            // TODO: Do some validation on the data in the PortletInstance (e.g. ensuring
-            // there are ConfigFieldInstances for each ConfigField of the Portlet that this
-            // PortletInstance is an Instance of).
-            foreach (ConfigFieldInstance configInstance in pi.ConfigFieldInstances) {
-                if (configInstance.PortletInstance == null)
-                    configInstance.PortletInstance = pi;
+
+            // Setup configurations
+            if (pi.ConfigFieldInstances != null) {
+                foreach (ConfigFieldInstance configInstance in pi.ConfigFieldInstances) {
+                    if (configInstance.PortletInstance == null)
+                        configInstance.PortletInstance = pi;
+                }
             }
+            // Set user
             pi.User = user;
-            this._db.CreatePortletInstance(pi);
+
+            // Create portlet instance
+            _db.CreatePortletInstance(pi);
+
             return Json(new Dictionary<int, int>());
         }
     }

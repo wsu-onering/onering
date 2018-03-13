@@ -5,6 +5,10 @@
 body {
 }
 
+.row {
+    margin-left: 0px;
+}
+
 .portlet-list {
     min-height: 70vh;
     max-height: 75vh;
@@ -38,7 +42,7 @@ body {
 
 .btn-finished {
     margin: 5px;
-    width: 110px;
+    width: 130px;
 }
 
 
@@ -104,9 +108,6 @@ body {
         white-space: nowrap;
         display: block;
     }
-
-
-
 
 
 
