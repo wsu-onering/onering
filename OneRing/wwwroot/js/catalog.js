@@ -12,7 +12,7 @@ function onCatalogAddClick() {
     let portletInstance = {
         Portlet: portletSelected,
         ConfigFieldInstances: [],
-        Height: 2,
+        Height: 6,
         Width: 1,
         XPos: 0,
         YPos: 0

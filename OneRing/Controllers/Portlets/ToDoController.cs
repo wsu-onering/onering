@@ -48,15 +48,7 @@ namespace onering.Controllers.Portlets
             _graphAuthProvider = graphAuthProvider;
             _db = db;
         }
-
-        //[Authorize]
-        //// GET: TodoPortlet
-        //public IActionResult Index()
-        //{
-        //    return View("~/Views/Portlets/ToDo/Index.cshtml", new List<ToDoItem>());
-        //}
-
-
+        
         [Authorize]
         // GET: TodoPortlet
         public async Task<IActionResult> Index(int id)

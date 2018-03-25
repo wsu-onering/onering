@@ -16,6 +16,7 @@ requirejs.config({
     }
 });
 
+
 /////
 //  Entrypoint for this file
 /////
@@ -24,17 +25,50 @@ require(['lodash', 'jquery', 'gridstack.jQueryUI', 'gridstack'], function(_, $, 
     "use strict";
 
     var options = {
+        rtl: true,
         float: true,
+        gridwidth: 6,
         draggable: {
             handle: '.portlet-heading',
-        },
+        }
     };
+
     $(function () {
         $('.grid-stack').gridstack(options);
-        $('.grid-stack').data('gridstack').setGridWidth(6);
         $('.grid-stack').on('change', (event, items) => {
             console.log(event, items);
+            saveDimensions(items);
         });
     });
 });
+
+
+/////
+//  Saving portlets' positions/sizes
+/////
+function saveDimensions(items) {
+    let portletInstances = [];
+
+    // Setup PortletInstances that changed
+    for (let i = 0; i < items.length; ++i) {
+        let p = items[i];
+        portletInstances.push({
+            ID: parseInt(p.id),
+            Height: p.height,
+            Width: p.width,
+            XPos: p.x,
+            YPos: p.y
+        });
+    }
+
+    // Post to controller
+    $.ajax({
+        dataType: "json",
+        url: "/Home/Update",
+        method: "POST",
+        data: { '': portletInstances }
+    });
+}
+
+
 

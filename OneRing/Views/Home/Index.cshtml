@@ -18,9 +18,10 @@
 } else {
     @foreach (PortletInstance inst in Model) {
         <div class="grid-stack-item"
-            data-gs-x="@inst.XPos" data-gs-y="@inst.YPos"
-            data-gs-width="@inst.Width" data-gs-height="@(inst.Height*3)"
-            data-gs-min-width="2" data-gs-min-height="3">
+             data-gs-id="@inst.ID"
+             data-gs-x="@inst.XPos" data-gs-y="@inst.YPos"
+             data-gs-width="@inst.Width" data-gs-height="@inst.Height"
+             data-gs-min-width="2" data-gs-min-height="3">
             <div class="grid-stack-item-content clearfix">
                 <div class="portlet-heading clearfix"></div>
                 <div class="portlet-body">
