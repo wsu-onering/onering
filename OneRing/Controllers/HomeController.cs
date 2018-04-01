@@ -32,14 +32,9 @@ namespace onering.Controllers
         }
 
         [Authorize]
-        // Load user's profile.
+        // Load user's profile
         public async Task<IActionResult> Index(string email)
         {
-            // Check if the user exists in the database and if they don't, insert them into the database.
-            string id = this.User.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier").Value;
-            if (!this._db.ListOneRingUsers(id).Any()) {
-                this._db.CreateOneRingUser(new OneRingUser{ GraphID = id });
-            }
             // We're gonna throw some configs into the page for verification,
             // delete these lines in production
             var azureOptions = new Extensions.AzureAdOptions();
@@ -47,75 +42,104 @@ namespace onering.Controllers
             ViewData["Configvals"] = JsonConvert.SerializeObject(azureOptions);
             ViewData["Configvals"] += JsonConvert.SerializeObject(Environment.GetEnvironmentVariables());
 
-            if (User.Identity.IsAuthenticated)
-            {
-                // Get users's email.
+            if (User.Identity.IsAuthenticated) {
+                // Get users's email
                 email = email ?? User.Identity.Name ?? User.FindFirst("preferred_username").Value;
                 ViewData["Email"] = email;
 
-                // Get user's id for token cache.
+                // Get user's id for token cache
                 var identifier = User.FindFirst(Startup.ObjectIdentifierType)?.Value;
 
-                // Initialize the GraphServiceClient.
+                // Initialize the GraphServiceClient
                 var graphClient = _graphSdkHelper.GetAuthenticatedClient(identifier);
-
                 ViewData["Response"] = await GraphService.GetUserJson(graphClient, email, HttpContext);
-
                 ViewData["Picture"] = await GraphService.GetPictureBase64(graphClient, email, HttpContext);
             }
 
-            return View(this._db.ListPortletInstances(this._db.ListOneRingUsers(id)[0]));
+            // Get user's OneRingUser id
+            string id = this.User.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier").Value;
+
+            // Check if the user exists in the database
+            OneRingUser oneRingUser = _db.ListOneRingUsers(id).FirstOrDefault();
+            if (oneRingUser == null) {
+                // Add new user to database
+                oneRingUser = new OneRingUser { GraphID = id };
+                _db.CreateOneRingUser(oneRingUser);
+                // Return empty list of portlet instances
+                return View(new List<PortletInstance>());
+            }
+            else {
+                // Return list of portlets the user has
+                List<PortletInstance> portletInstances = _db.ListPortletInstances(oneRingUser);
+                return View(portletInstances);
+            }
+        }
+        
+        [Authorize]
+        [HttpPost]
+        // Update portlet instance's position and size
+        public void Update(IEnumerable<PortletInstance> portletInstances)
+        {
+            _db.UpdatePortletInstances(portletInstances);
         }
 
         [Authorize]
         [HttpPost]
-        // Send an email message from the current user.
-        public async Task<IActionResult> SendEmail(string recipients)
+        // Delete portlet instance
+        public void Delete(int portletInstanceID)
         {
-            if (string.IsNullOrEmpty(recipients))
-            {
-                TempData["Message"] = "Please add a valid email address to the recipients list!";
-                return RedirectToAction("Index");
-            }
-
-            try
-            {
-                // Get user's id for token cache.
-                var identifier = User.FindFirst(Startup.ObjectIdentifierType)?.Value;
-
-                // Initialize the GraphServiceClient.
-                var graphClient = _graphSdkHelper.GetAuthenticatedClient(identifier);
-
-                // Send the email.
-                await GraphService.SendEmail(graphClient, _env, recipients, HttpContext);
-
-                // Reset the current user's email address and the status to display when the page reloads.
-                TempData["Message"] = "Success! Your mail was sent.";
-                return RedirectToAction("Index");
-            }
-            catch (ServiceException se)
-            {
-                Debug.Print("Error occurred while attempting to send email: {0}, {1}", se, se.Error.Code);
-                if (se.Error.Code == "Caller needs to authenticate.") return new EmptyResult();
-                return RedirectToAction("Error", "Home", new { message = "Error: " + se.Error.Message });
-            }
+            _db.DeletePortletInstance(portletInstanceID);
         }
 
-        [AllowAnonymous]
-        public IActionResult About()
-        {
-            ViewData["Message"] = "Your application description page.";
+        //[Authorize]
+        //[HttpPost]
+        //// Send an email message from the current user.
+        //public async Task<IActionResult> SendEmail(string recipients)
+        //{
+        //    if (string.IsNullOrEmpty(recipients))
+        //    {
+        //        TempData["Message"] = "Please add a valid email address to the recipients list!";
+        //        return RedirectToAction("Index");
+        //    }
 
-            return View();
-        }
+        //    try
+        //    {
+        //        // Get user's id for token cache.
+        //        var identifier = User.FindFirst(Startup.ObjectIdentifierType)?.Value;
 
-        [AllowAnonymous]
-        public IActionResult Contact()
-        {
-            ViewData["Message"] = "Your contact page.";
+        //        // Initialize the GraphServiceClient.
+        //        var graphClient = _graphSdkHelper.GetAuthenticatedClient(identifier);
 
-            return View();
-        }
+        //        // Send the email.
+        //        await GraphService.SendEmail(graphClient, _env, recipients, HttpContext);
+
+        //        // Reset the current user's email address and the status to display when the page reloads.
+        //        TempData["Message"] = "Success! Your mail was sent.";
+        //        return RedirectToAction("Index");
+        //    }
+        //    catch (ServiceException se)
+        //    {
+        //        Debug.Print("Error occurred while attempting to send email: {0}, {1}", se, se.Error.Code);
+        //        if (se.Error.Code == "Caller needs to authenticate.") return new EmptyResult();
+        //        return RedirectToAction("Error", "Home", new { message = "Error: " + se.Error.Message });
+        //    }
+        //}
+
+        //[AllowAnonymous]
+        //public IActionResult About()
+        //{
+        //    ViewData["Message"] = "Your application description page.";
+
+        //    return View();
+        //}
+
+        //[AllowAnonymous]
+        //public IActionResult Contact()
+        //{
+        //    ViewData["Message"] = "Your contact page.";
+
+        //    return View();
+        //}
 
         [AllowAnonymous]
         public IActionResult Error()

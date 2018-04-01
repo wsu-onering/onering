@@ -7,28 +7,29 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <script src="~/js/portlet/todo.js" asp-append-version="true"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="~/js/portlet/todo.js"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
     <link rel="stylesheet" href="~/css/portlet/todo.css" />
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 </head>
 
 
-<body style="padding-top: 0px;">
-    <h2>Todo List</h2>
+<body>
+    <p class="todo-header">Todo List</p>
 
-    <table class="table table-bordered table-striped">
+    <table class="todo-table">
         <tr>
-            <th>Title</th>
-            <th>Due Date</th>
+            <th></th>
+            <th>Name</th>
+            <th>Due</th>
         </tr>
         @foreach (var todo in Model) {
-            <tr userid="@todo.UserID" sourceid="@todo.SourceID" itemid="@todo.ID">
-                <td><a href="@todo.Link">@todo.Title</a></td>
-                <td>@todo.DueDate</td>
+            <tr userid="@todo.UserID" sourceid="@todo.SourceID" itemid="@todo.ID" link="@todo.Link">
                 <td>
-                    <button>Mark as Done</button>
+                    <input class="todo-nav-img" type="image" src="~/images/portlet/todo/navigate.png"/>
                 </td>
+                <td>@todo.Title</td>
+                <td>@todo.DueDate.ToString("MM-dd-yy h:mm tt")</td>
             </tr>
         }
     </table>

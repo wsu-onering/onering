@@ -1,9 +1,127 @@
-﻿iframe {
-    /* margin-top: 10px; */
+﻿html {
+    height: 100%;
+}
+
+body {
+    padding-top: 50px;
+    padding-bottom: 20px;
+    font-size: 12px;
+    height: 100%;
+}
+
+.body-content {
+    padding-left: 15px;
+    padding-right: 15px;
+    margin-top: 30px;
+}
+
+iframe {
     height: 100%;
     width: 100%;
     border: none;
-    /* border-color: black; */
+}
+
+button {
+    font-size: 11px;
+}
+
+/* Carousel */
+.carousel-caption p {
+    font-size: 20px;
+    line-height: 1.4;
+}
+
+/* Make .svg files in the carousel display properly in older browsers */
+.carousel-inner .item img[src$=".svg"] {
+    width: 100%;
+}
+
+/* QR code generator */
+#qrCode {
+    margin: 15px;
+}
+
+/* Hide/rearrange for smaller screens */
+@media screen and (max-width: 767px) {
+    /* Hide captions */
+    .carousel-caption {
+        display: none;
+    }
+}
+
+.navbar-nav {
+    margin: 0px;
+}
+
+.navbar-header {
+    float: none;
+}
+
+.navbar-right {
+    float: right;
+}
+
+.navbar {
+    min-height: 70px;
+}
+
+.navbar-brand {
+    font-size: 32px;
+    padding-top: 10px;
+}
+
+    .navbar-brand > img {
+        width: 52px;
+        height: 52px;
+        display: inline-block;
+        margin-right: -8px;
+    }
+
+.navbar-inverse .navbar-brand {
+    color: #dddddd;
+}
+
+.site-menu-toggle {
+    width: 45px;
+    height: 70px;
+    float: right;
+}
+
+.site-menu-icon {
+    top: 8px;
+    right: 2px;
+    font-size: 25px;
+}
+
+.portlet-menu-toggle {
+    color: darkgray;
+}
+
+.portlet-menu {
+    float: right;
+    left: unset;
+}
+
+.portlet-menu-icon {
+    top: 2px;
+    font-size: 18px;
+}
+
+.table > tbody > tr > td {
+    padding: 2px;
+}
+
+.table > tbody > tr > th {
+    padding: 2px;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+h2 {
+    margin-top: 5px;
+    font-size: 25px;
 }
 
 #abs-center {
