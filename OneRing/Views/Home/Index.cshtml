@@ -23,7 +23,18 @@
              data-gs-width="@inst.Width" data-gs-height="@inst.Height"
              data-gs-min-width="2" data-gs-min-height="3">
             <div class="grid-stack-item-content clearfix">
-                <div class="portlet-heading clearfix"></div>
+                <div class="portlet-heading clearfix">
+                    <div class="dropdown">
+                        <a class="dropdown-toggle portlet-menu-toggle" data-toggle="dropdown" href="#">
+                            <span class="glyphicon glyphicon-option-vertical portlet-menu-icon" aria-hidden="true"></span>
+                        </a>
+                        <ul class="dropdown-menu portlet-menu">
+                            <li><a href="#" onclick="deletePortlet_OnClick(@(inst.ID))">Delete</a></li>
+                            @*<li><a href="#">item2</a></li>
+                            <li><a href="#">item3</a></li>*@
+                        </ul>
+                    </div>
+                </div>
                 <div class="portlet-body">
                     <iframe src="@(inst.Portlet.Path + "/?id=" + inst.ID)" frameborder="1" scrolling="no"></iframe>
                 </div>

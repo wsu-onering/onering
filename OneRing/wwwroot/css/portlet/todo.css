@@ -26,3 +26,8 @@
         width: 24px;
         height: 24px;
 }
+
+.todo-header {
+    margin-top: 10px;
+    font-size: 28px;
+}

@@ -83,6 +83,14 @@ namespace onering.Controllers
             _db.UpdatePortletInstances(portletInstances);
         }
 
+        [Authorize]
+        [HttpPost]
+        // Delete portlet instance
+        public void Delete(int portletInstanceID)
+        {
+            _db.DeletePortletInstance(portletInstanceID);
+        }
+
         //[Authorize]
         //[HttpPost]
         //// Send an email message from the current user.

@@ -17,9 +17,9 @@ requirejs.config({
 });
 
 
-/////
-//  Entrypoint for this file
-/////
+///////////////////////////////////////////////////
+// Entrypoint for this file
+///////////////////////////////////////////////////
 require(['lodash', 'jquery', 'gridstack.jQueryUI', 'gridstack'], function(_, $, ____){
     // Called once all the required libraries are loaded
     "use strict";
@@ -36,16 +36,16 @@ require(['lodash', 'jquery', 'gridstack.jQueryUI', 'gridstack'], function(_, $, 
     $(function () {
         $('.grid-stack').gridstack(options);
         $('.grid-stack').on('change', (event, items) => {
-            console.log(event, items);
+            //console.log(event, items);
             saveDimensions(items);
         });
     });
 });
 
 
-/////
-//  Saving portlets' positions/sizes
-/////
+///////////////////////////////////////////////////
+// Saving portlets' positions/sizes
+///////////////////////////////////////////////////
 function saveDimensions(items) {
     let portletInstances = [];
 
@@ -61,7 +61,7 @@ function saveDimensions(items) {
         });
     }
 
-    // Post to controller
+    // Send to controller
     $.ajax({
         dataType: "json",
         url: "/Home/Update",
@@ -71,4 +71,18 @@ function saveDimensions(items) {
 }
 
 
+///////////////////////////////////////////////////
+// Delete portlet
+///////////////////////////////////////////////////
+function deletePortlet_OnClick(instanceID) {
+    // Send to controller
+    $.ajax({
+        dataType: "json",
+        url: "/Home/Delete",
+        method: "POST",
+        data: { portletInstanceID: instanceID } 
+    });
 
+    // Refresh home page
+    location.reload();
+}
