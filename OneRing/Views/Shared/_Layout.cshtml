@@ -23,7 +23,7 @@
             <div class="navbar-header">
                 <ul class="nav navbar-nav navbar-right">
                     <li class="dropdown">
-                        <a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="glyphicon glyphicon-option-vertical" aria-hidden="true"></span></a>
+                        <a class="dropdown-toggle site-menu-toggle" data-toggle="dropdown" href="#"><span class="glyphicon glyphicon-option-vertical site-menu-icon" aria-hidden="true"></span></a>
                         <ul class="dropdown-menu">
                             <li><a asp-controller="Catalog" asp-action="Index">Add portlet</a></li>
                             @await Html.PartialAsync("_LoginPartial")
@@ -31,15 +31,15 @@
                     </li>
                 </ul>
                 <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand">
-                    <img src="~/images/OneRingIcon.svg" class="one-ring-icon" />ne Ring
+                    <img src="~/images/OneRingIcon.svg"/>ne Ring
                 </a>
             </div>
         </div>
     </nav>
     <div class="container body-content">
         @RenderBody()
-        <hr />
         <footer>
+            <hr />
             <p>&copy; 2017 - onering</p>
         </footer>
     </div>

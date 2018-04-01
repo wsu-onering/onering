@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data.SqlClient;
+using System.Runtime.Serialization;
 
 namespace onering.Models
 {
@@ -19,13 +21,16 @@ namespace onering.Models
 
         // The User that this PortletInstance belongs to.
         public OneRingUser User { get; set; }
+
         // A collection of the ConfigFieldInstances associated with this PortletInstance. This field
         // may be null if the portlet this is an instance of requires no configuration.
-        public List<ConfigFieldInstance> ConfigFieldInstances {get; set;}
-        public int Height {get; set;}
-        public int Width {get; set;}
-        public int XPos {get; set;}
-        public int YPos {get; set;}
+        public List<ConfigFieldInstance> ConfigFieldInstances { get; set; }
+
+        // Position and dimensions of PortletInstance
+        public int Height { get; set; }
+        public int Width { get; set; }
+        public int XPos { get; set; }
+        public int YPos { get; set; }
 
 
         public static PortletInstance ReadFromDb(SqlDataReader reader)

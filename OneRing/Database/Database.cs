@@ -26,6 +26,9 @@ namespace onering.Database
         List<PortletInstance> ListPortletInstances(PortletInstance pi);
         List<ConfigFieldInstance> ListConfigFieldInstances(PortletInstance portletInstance);
         List<ConfigFieldInstance> ListConfigFieldInstances(int portletID);
+        void UpdatePortletInstances(IEnumerable<PortletInstance> portletInstances);
+        void DeletePortletInstance(int portletInstanceID);
+        void DeleteConfigFieldInstances(int portletInstanceID);
     }
 
 
@@ -743,6 +746,96 @@ namespace onering.Database
                 END", conn);
                 createConfigFieldInstance.ExecuteNonQuery();
 
+                conn.Close();
+            }
+        }
+
+        /// <summary>
+        /// Method updates existing PortletInstances in the database. This is geared toward updating a PortletInstance's position and size on a user's home page.
+        /// </summary>
+        /// <param name="portletInstances">List of PortletInstances in the database to be updated. They only need an id, height, width, x, and y set.</param>
+        public void UpdatePortletInstances(IEnumerable<PortletInstance> portletInstances)
+        {
+            // Setup query
+            string query = "UPDATE PortletInstance SET Height=@h, Width=@w, XPos=@x, YPos=@y Where PortletInstanceID=@id";
+
+            // Open connection
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                conn.Open();
+                // Create command
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    // Setup default parameters
+                    cmd.Parameters.Add(new SqlParameter("@id", 0));
+                    cmd.Parameters.Add(new SqlParameter("@h", 0));
+                    cmd.Parameters.Add(new SqlParameter("@w", 0));
+                    cmd.Parameters.Add(new SqlParameter("@x", 0));
+                    cmd.Parameters.Add(new SqlParameter("@y", 0));
+
+                    // Update each portlet instance
+                    foreach (PortletInstance portletInstance in portletInstances)
+                    {
+                        cmd.Parameters["@id"].Value = portletInstance.ID;
+                        cmd.Parameters["@h"].Value = portletInstance.Height;
+                        cmd.Parameters["@w"].Value = portletInstance.Width;
+                        cmd.Parameters["@x"].Value = portletInstance.XPos;
+                        cmd.Parameters["@y"].Value = portletInstance.YPos;
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+                conn.Close();
+            }
+        }
+
+        /// <summary>
+        /// Method deletes PortletInstance from a users home page with the given portlet instance ID.
+        /// </summary>
+        /// <param name="portletInstanceID">Unique ID of PortletInstance to delete from database.</param>
+        public void DeletePortletInstance(int portletInstanceID)
+        {
+            // Delete PortletInstance's ConfigFieldInstances
+            DeleteConfigFieldInstances(portletInstanceID);
+            
+            // Delete PortletInstance
+            // Setup query
+            string query = "DELETE FROM PortletInstance WHERE PortletInstanceID=@id";
+
+            // Open connection
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                conn.Open();
+                // Create command
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    // Setup parameter and execute command
+                    cmd.Parameters.Add(new SqlParameter("@id", portletInstanceID));
+                    cmd.ExecuteNonQuery();
+                }
+                conn.Close();
+            }
+        }
+
+        /// <summary>
+        /// Method deletes ConfigFieldInstances of the given PortletInstance associated with the given portlet instance ID.
+        /// </summary>
+        /// <param name="portletInstanceID">Unique ID of PortletInstance in which to delete ConfigFieldInstances from the database.</param>
+        public void DeleteConfigFieldInstances(int portletInstanceID)
+        {
+            // Setup query
+            string query = "DELETE FROM ConfigFieldInstance WHERE PortletInstanceID=@id";
+
+            // Open connection
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                conn.Open();
+                // Create command
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    // Setup parameter and execute command
+                    cmd.Parameters.Add(new SqlParameter("@id", portletInstanceID));
+                    cmd.ExecuteNonQuery();
+                }
                 conn.Close();
             }
         }

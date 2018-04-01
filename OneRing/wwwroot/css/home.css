@@ -1,7 +1,12 @@
-﻿body {
+﻿html {
+    height: 100%;
+}
+
+body {
     padding-top: 50px;
     padding-bottom: 20px;
     font-size: 12px;
+    height: 100%;
 }
 
 .body-content {
@@ -53,20 +58,11 @@ button {
 }
 
 .navbar-right {
-    margin-top: 4px;
     float: right;
 }
 
 .navbar {
     min-height: 70px;
-}
-
-
-.dropdown .dropdown-toggle {
-    padding: 0px;
-    width: 45px;
-    height: 60px;
-    float: right;
 }
 
 .navbar-brand {
@@ -75,8 +71,8 @@ button {
 }
 
     .navbar-brand > img {
-        width: 56px;
-        height: 56px;
+        width: 52px;
+        height: 52px;
         display: inline-block;
         margin-right: -8px;
     }
@@ -85,12 +81,31 @@ button {
     color: #dddddd;
 }
 
-.glyphicon {
-    top: 18px;
-    left: 12px;
+.site-menu-toggle {
+    width: 45px;
+    height: 70px;
+    float: right;
+}
+
+.site-menu-icon {
+    top: 8px;
+    right: 2px;
     font-size: 25px;
 }
 
+.portlet-menu-toggle {
+    color: darkgray;
+}
+
+.portlet-menu {
+    float: right;
+    left: unset;
+}
+
+.portlet-menu-icon {
+    top: 2px;
+    font-size: 18px;
+}
 
 .table > tbody > tr > td {
     padding: 2px;
