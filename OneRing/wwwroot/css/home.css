@@ -139,10 +139,18 @@ h2 {
     height: 2em;
 }
 .portlet-body {
-    /* background-color: cyan; */
     height: calc(100% - 2em);
 }
 
 .grid-stack>.grid-stack-item>.grid-stack-item-content {
     overflow-y: hidden;
+}
+.portlet-overlay {
+    background-color: white;
+    opacity: 0.9;
+    height: calc(100% - 2em);
+    width: 100%;
+    position: absolute;
+    top: 2em;
+    left: 0;
 }
