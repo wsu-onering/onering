@@ -15,24 +15,30 @@
 
 
 <body>
-    <p class="todo-header">Todo List</p>
-
-    <table class="todo-table">
-        <tr>
-            <th></th>
-            <th>Name</th>
-            <th>Due</th>
-        </tr>
-        @foreach (var todo in Model) {
-            <tr userid="@todo.UserID" sourceid="@todo.SourceID" itemid="@todo.ID" link="@todo.Link">
-                <td>
-                    <input class="todo-nav-img" type="image" src="~/images/portlet/todo/navigate.png"/>
-                </td>
-                <td>@todo.Title</td>
-                <td>@todo.DueDate.ToString("MM-dd-yy h:mm tt")</td>
-            </tr>
-        }
-    </table>
+    <p id="todo_table_title">Todo List</p>
+    <div>
+        <table id="todo_table">
+            <thead id="todo_thead">
+                <tr>
+                    <th></th>
+                    <th><a class="col-header unselectable" onclick="sortTable('todo-title', this)">Name<span class="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span></a></th>
+                    <th><a class="col-header unselectable" onclick="sortTable('todo-date', this)">Due<span class="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span></a></th>
+                </tr>
+            </thead>
+            <tbody id="todo_tbody">
+                @foreach (var todo in Model)
+                {
+                    <tr userid="@todo.UserID" sourceid="@todo.SourceID" itemid="@todo.ID">
+                        <td class="todo-nav">
+                            <input class="todo-nav-img" type="image" src="~/images/portlet/todo/navigate.png" onclick="todoItemNav_onclick('@todo.Link')" />
+                        </td>
+                        <td class="todo-title" data-content="@todo.Title">@todo.Title</td>
+                        <td class="todo-date" data-content="@todo.DueDate">@todo.DueDate.ToString("MM-dd-yy h:mm tt")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </body>
 
 </html>

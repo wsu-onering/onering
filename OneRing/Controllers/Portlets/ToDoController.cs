@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using onering.Helpers;
 using onering.Models;
-
+using System.Linq;
 
 namespace onering.Controllers.Portlets
 {
@@ -76,20 +76,16 @@ namespace onering.Controllers.Portlets
                     string responseString = await response.Content.ReadAsStringAsync();
                     List<ToDoItem> newtodos = JsonConvert.DeserializeObject<List<ToDoItem>>(responseString);
                     foreach (ToDoItem item in newtodos) {
-                        ToDoItemView viewItem = new ToDoItemView();
-                        viewItem.Title = item.Title;
-                        viewItem.Link = item.Link;
-                        viewItem.IsComplete = item.IsComplete;
-                        viewItem.DueDate = DateTime.Parse(item.DueDate);
-                        viewItem.ID = item.ID;
-                        viewItem.SourceID = sourceID;
-                        viewItem.UserID = userID;
+                        ToDoItemView viewItem = new ToDoItemView(item) {
+                            SourceID = sourceID,
+                            UserID = userID
+                        };
                         todosItems.Add(viewItem);
                     }
                 }
             }
 
-            return View("~/Views/Portlets/ToDo/Index.cshtml", todosItems);
+            return View("~/Views/Portlets/ToDo/Index.cshtml", todosItems.OrderBy(x => x.DueDate).ToList());
         }
 
         //// POST: TodoPortlet
