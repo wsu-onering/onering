@@ -35,13 +35,13 @@ namespace onering.Controllers
         [HttpGet]
         public IActionResult SignedOut()
         {
-            if (User.Identity.IsAuthenticated)
-            {
+            return RedirectToAction(nameof(HomeController.Index), "Home");
+            // if (User.Identity.IsAuthenticated)
+            // {
                 // Redirect to home page if the user is authenticated.
-                return RedirectToAction(nameof(HomeController.Index), "Home");
-            }
-
-            return View();
+                // return RedirectToAction(nameof(HomeController.Index), "Home");
+            // }
+            // return View();
         }
 
         [HttpGet]
