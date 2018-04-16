@@ -113,14 +113,16 @@ function saveDimensions(items) {
 // Delete portlet
 ///////////////////////////////////////////////////
 function deletePortlet_OnClick(instanceID) {
-    // Send to controller
-    $.ajax({
-        dataType: "json",
-        url: "/Home/Delete",
-        method: "POST",
-        data: { portletInstanceID: instanceID } 
-    });
+    if (confirm("Are you sure you want to delete this portlet?")) {
+        // Send to controller
+        $.ajax({
+            dataType: "json",
+            url: "/Home/Delete",
+            method: "POST",
+            data: { portletInstanceID: instanceID }
+        });
 
-    // Refresh home page
-    location.reload();
+        // Refresh home page
+        location.reload();
+    }
 }
