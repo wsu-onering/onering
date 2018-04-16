@@ -17,5 +17,14 @@ namespace onering.Models
 		/// explicitly in charge of where requests are made to.
 		/// There is a one-to-one association between a source ID and the URI for that source.
 		public string SourceID {get; set;}
+
+        public ToDoItemView(ToDoItem toDoItem)
+        {
+            Title = toDoItem.Title;
+            Link = toDoItem.Link;
+            IsComplete = toDoItem.IsComplete;
+            DueDate = DateTime.Parse(toDoItem.DueDate);
+            ID = toDoItem.ID;
+        }
 	}
 }

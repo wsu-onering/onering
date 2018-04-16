@@ -37,17 +37,17 @@ require(['lodash', 'jquery', 'gridstack.jQueryUI', 'gridstack'], function(_, $, 
     // this overlay element must come before the iframe in the containing div for the overlay to
     // work.
     function disableIframe(element) {
-        console.log("disabling iframe", element);
+        //console.log("disabling iframe", element);
         let overlay = document.createElement('div');
         overlay.setAttribute('class', 'portlet-overlay');
         let body = $(element).find('.portlet-body')[0];
         body.prepend(overlay);
-        console.log('body: ', body);
+        //console.log('body: ', body);
     }
     // enableIframe enables interacting with the iframe portion of a portlet by removing the
     // `overlay` element within the gridstack 'window'.
     function enableIframe(element) {
-        console.log("Enabling iframe!", element);
+        //console.log("Enabling iframe!", element);
         let overlay = $(element).find('.portlet-overlay')[0];
         overlay.remove();
     }

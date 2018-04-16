@@ -2,32 +2,59 @@
     padding-top: 0px;
 }
 
-.todo-table {
+div {
+    overflow-y: auto;
+}
+
+#todo_table {
     width: 100%;
 }
 
-.todo-table > th, td {
-    border-bottom: 1px solid #ddd;
-}
+    #todo_table > th, td {
+        border-bottom: 1px solid #ddd;
+    }
 
-.todo-table th  {
-    color: white;
-    background-color: mediumseagreen; 
-    padding: 5px;
-    font-size: 22px;
-    font-family: Calibri;
-}
+    #todo_table th {
+        background-color: mediumseagreen;
+        padding: 5px;
+    }
 
-.todo-table td {
-    padding: 6px 4px;
-}
+    #todo_table td {
+        padding: 7px 5px;
+        font-size: 18px;
+    }
 
 .todo-nav-img {
-        width: 24px;
-        height: 24px;
+    width: 22px;
+    height: 22px;
 }
 
-.todo-header {
+#todo_table_title {
     margin-top: 10px;
     font-size: 28px;
 }
+
+a:hover {
+    text-decoration: none;
+}
+
+.col-header {
+    color: white;
+    font-size: 22px;
+    font-family: Calibri;
+    cursor: pointer;
+}
+
+.glyphicon {
+    font-size: 16px;
+    margin-left: 4px;
+}
+
+.unselectable {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
