@@ -3,8 +3,9 @@ var islastSortedDescending;
 
 jQuery(document).ready(function () {
     resizeDiv();
-    islastSortedDescending = true;
+    islastSortedDescending = false;
     lastColSorted = 'todo-date';
+    sortTable(lastColSorted, document.getElementById('first_sorted'));
 });
 
 window.onresize = function (event) {
@@ -123,31 +124,3 @@ function a_LessThan_b(a, b) {
 function a_GreaterThan_b(a, b) {
     return a > b;
 }
-
-//function removeTodoItemClick(row) {
-//    return function () {
-//        var sourceID = row.attributes.sourceid.value;
-//        var userID = row.attributes.userid.value;
-//        var itemID = row.attributes.itemid.value;
-//        console.log("the button for the row was clicked for row", row);
-//        var data = JSON.stringify({
-//            "sourceID": sourceID,
-//            "userID": userID,
-//            "itemID": itemID
-//        });
-//        console.log("data:", data);
-//        $(row).hide();
-//        $.ajax({
-//            "method": "POST",
-//            "data": data,
-//            'contentType': 'application/json',
-//            'url': '/TodoPortlet/MarkDone'
-//        }).done(() => {
-//            console.log("We sent the thing off and we hope it went well!");
-//        }).fail((stuff) => {
-//            console.log("Apparently everything failed : (");
-//            console.log(stuff);
-//            $(row).show();
-//        });
-//    }
-//}

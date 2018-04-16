@@ -85,7 +85,7 @@ namespace onering.Controllers.Portlets
                 }
             }
 
-            return View("~/Views/Portlets/ToDo/Index.cshtml", todosItems.OrderBy(x => x.DueDate).ToList());
+            return View("~/Views/Portlets/ToDo/Index.cshtml", todosItems);
         }
 
         //// POST: TodoPortlet
