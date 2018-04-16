@@ -9,6 +9,14 @@ function setup() {
     }
 }
 
+//window.onresize = function (event) {
+//    starCanvas.width = windowWidth;
+//    starCanvas.height = windowHeight;
+//}
+function windowResized() {
+    resizeCanvas(windowWidth, windowHeight);
+}
+
 function draw() {
     background(0);
     speed = map(mouseX, -50, width + 50, 0, 10);
@@ -46,13 +54,5 @@ class Star {
 
         var r = map(this.z, 0, width, 12, 0);
         ellipse(sx, sy, r, r);
-
-        var px = map(this.x / this.pz, 0, 1, 0, width);
-        var py = map(this.y / this.pz, 0, 1, 0, height);
-
-        this.pz = this.z;
-
-        stroke(255);
-        line(px, py, sx, sy);
     }
 }
