@@ -131,7 +131,8 @@ h2 {
     transform: translateY(-50%);
 }
 #portlet-grid {
-    height: calc(100vh - 150px);
+    min-height: calc(100vh - 150px);
+    height: 100%;
 }
 
 .portlet-heading {
