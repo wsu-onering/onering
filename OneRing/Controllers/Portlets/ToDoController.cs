@@ -18,24 +18,19 @@ using System.Linq;
 
 namespace onering.Controllers.Portlets
 {
-    public class ToDoPortlet : Models.Interfaces.IPortlet
-    {
-        public string PortletName { get { return _PortletName; } }
-        public string PortletDescription { get { return _PortletDescription; } }
-        public string PortletIconPath { get { return _PortletIconPath; } }
-        public string PortletPath { get { return typeof(ToDoController).Name.Replace("Controller", ""); } }
-        private static string _PortletName = "ToDo";
-        private static string _PortletDescription = "View all the items in your To-Do lists.";
-        private static string _PortletIconPath = "http://lelandbatey.com/favicon.ico";
-    }
+    //public class ToDoPortlet : Models.Interfaces.IPortlet
+    //{
+    //    public string PortletName { get { return _PortletName; } }
+    //    public string PortletDescription { get { return _PortletDescription; } }
+    //    public string PortletIconPath { get { return _PortletIconPath; } }
+    //    public string PortletPath { get { return typeof(ToDoController).Name.Replace("Controller", ""); } }
+    //    private static string _PortletName = "ToDo";
+    //    private static string _PortletDescription = "View all the items in your To-Do lists.";
+    //    private static string _PortletIconPath = "http://lelandbatey.com/favicon.ico";
+    //}
 
     public class ToDoController : Controller
     {
-        //private readonly Dictionary<string, string> datasources = new Dictionary<string, string>{
-        //        { "1", "http://todotestsite.azurewebsites.net/api/values/" },
-        //        { "2", "http://todotestsite2.azurewebsites.net/api/values/" }
-        //        // { "1", "http://localhost:5555/" },
-        //    };
         private readonly IConfiguration _configuration;
         private readonly IHostingEnvironment _env;
         private readonly IGraphAuthProvider _graphAuthProvider;

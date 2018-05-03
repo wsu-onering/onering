@@ -77,6 +77,19 @@ button {
         margin-right: -8px;
     }
 
+.nav .open > a {
+    background-color: #ffe456 !important;
+}
+
+.nav .dropdown-menu {
+    background-color: #ffe456;
+    border: none;
+}
+
+.nav .dropdown-menu > li > a {
+    font-weight: 500;
+}
+
 .navbar-inverse .navbar-brand {
     color: #dddddd;
 }

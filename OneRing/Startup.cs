@@ -131,38 +131,38 @@ namespace onering
                         }
                     }
                 },
-                new Portlet {
-                    Name = "ExtraCoolPortlet",
-                    Description = "An extra cool portlet.",
-                    Path = "",
-                    Icon = "https://placeimg.com/150/150/tech",
-                    ConfigFields = new List<ConfigField>{
-                        new ConfigField {
-                            Name = "Single Input",
-                            Description = "As a user, you can input whatever your heart desires into here."
-                        },
-                        new ConfigField {
-                            Name = "Multiple Dropdown",
-                            Description = "Indeed this is a field, with some options for things you can have.",
-                            ConfigFieldOptions = new List<ConfigFieldOption> {
-                                new ConfigFieldOption{
-                                    Name = "Red fish",
-                                    Value = "#FF0000"
-                                },
-                                new ConfigFieldOption{
-                                    Name = "Blue fish",
-                                    Value = "#0000FF"
-                                },
-                            }
-                        }
-                    }
-                },
-                new Portlet {
-                    Name = "NotAsCoolPortlet",
-                    Description = "A portlet that is not as cool.",
-                    Path = "",
-                    Icon = "https://placeimg.com/150/150/tech",
-                }
+                //new Portlet {
+                //    Name = "ExtraCoolPortlet",
+                //    Description = "An extra cool portlet.",
+                //    Path = "",
+                //    Icon = "https://placeimg.com/150/150/tech",
+                //    ConfigFields = new List<ConfigField>{
+                //        new ConfigField {
+                //            Name = "Single Input",
+                //            Description = "As a user, you can input whatever your heart desires into here."
+                //        },
+                //        new ConfigField {
+                //            Name = "Multiple Dropdown",
+                //            Description = "Indeed this is a field, with some options for things you can have.",
+                //            ConfigFieldOptions = new List<ConfigFieldOption> {
+                //                new ConfigFieldOption{
+                //                    Name = "Red fish",
+                //                    Value = "#FF0000"
+                //                },
+                //                new ConfigFieldOption{
+                //                    Name = "Blue fish",
+                //                    Value = "#0000FF"
+                //                },
+                //            }
+                //        }
+                //    }
+                //},
+                //new Portlet {
+                //    Name = "NotAsCoolPortlet",
+                //    Description = "A portlet that is not as cool.",
+                //    Path = "",
+                //    Icon = "https://placeimg.com/150/150/tech",
+                //}
             };
 
             List<Portlet> allPortlets = db.ListPortlets();
@@ -230,15 +230,15 @@ namespace onering
                 // Check if a portlet of the given name already exists in the DB. If it does exist,
                 // do not insert this portlet into the DB.
                 bool weExist = false;
-                foreach (Portlet p in db.ListPortlets(currentName)) {
+                foreach (Portlet p in existing) {
                     if (p.Name == currentName) {
                         weExist = true;
                         Debug.WriteLine("We found a portlet with the same name as us: their name {0}, our name {1}", p.Name, currentName);
+                        break;
                     }
                 }
-                if (weExist) {
+                if (weExist)
                     continue;
-                }
                 // This portlet doesn't exist in the DB, so let's insert it now.
                 Portlet newP = new Portlet {
                     Name = currentName,

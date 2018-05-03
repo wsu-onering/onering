@@ -9,15 +9,15 @@ using onering.Models;
 
 namespace onering.Controllers.Portlets
 {
-    public class TestPortlet : Models.Interfaces.IPortlet {
-        public string PortletName {get { return _PortletName; } }
-        public string PortletDescription { get { return _PortletDescription; } }
-        public string PortletIconPath { get { return _PortletIconPath; } }
-        public string PortletPath  { get { return typeof(ToDoController).Name.Replace("Controller", ""); } }
-        private static string _PortletName = "WarpSpeed";
-        private static string _PortletDescription = "Travel the galaxy at warp factor 5!";
-        private static string _PortletIconPath = "http://lorempixel.com/200/200/city/";
-    }
+    //public class TestPortlet : Models.Interfaces.IPortlet {
+    //    public string PortletName {get { return _PortletName; } }
+    //    public string PortletDescription { get { return _PortletDescription; } }
+    //    public string PortletIconPath { get { return _PortletIconPath; } }
+    //    public string PortletPath  { get { return typeof(ToDoController).Name.Replace("Controller", ""); } }
+    //    private static string _PortletName = "WarpSpeed";
+    //    private static string _PortletDescription = "Travel the galaxy at warp factor 5!";
+    //    private static string _PortletIconPath = "http://lorempixel.com/200/200/city/";
+    //}
 
     public class TestController : Controller
     {
